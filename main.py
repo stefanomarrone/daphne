@@ -44,9 +44,8 @@ def grab(configurationname):
 def errormessage():
     print('There is an error in the command line! There are two arguments.')
     print('The first argument to use is the mode: "single" and "folder".')
-    print('In case of "single" mode, the second argument is the The first argument to use is the mode: "single" and "folder".')
-    print('The first argument to use is the mode: "single" and "folder".')
-    print('The first argument to use is the mode: "single" and "folder".')
+    print('In case of "single" mode, the second argument is the configuration file.')
+    print('In case of "folder" mode, the second argument is a folder containing different configuration files.')
 
 
 if __name__ == '__main__':

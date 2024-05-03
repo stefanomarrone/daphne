@@ -1,5 +1,5 @@
-from data import *
-from abstractfactory import DataFactory
+from src.data import *
+from src.abstractfactory import DataFactory
 
 class DummyDataFactory(DataFactory):
     def concretegeneration(self, features):
@@ -10,4 +10,6 @@ class StupidDataFactory(DataFactory):
     def concretegeneration(self, features):
         return StupidDataGrubber(features)
 
-
+class OPWDataFactory(DataFactory):
+    def concretegeneration(self, configuration):
+        return OPWDataGrabber(configuration)

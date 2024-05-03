@@ -1,7 +1,9 @@
-from metaclasses import Singleton
 from configparser import ConfigParser
-from engine import RuleEngine
+from src.engine import RuleEngine
 import configparser
+
+from src.metaclasses import Singleton
+
 
 class Configuration(metaclass=Singleton):
     def __init__(self, inifilename):
@@ -63,39 +65,38 @@ class Configuration(metaclass=Singleton):
 
     def load(self, inifile):
         reader = ConfigParser()
-        reader.read(inifile)
-        try:
-            temp = reader['main']['outfolder']
-            self.put('outfolder', temp)
-            kb = reader['main']['datakb']
-            dg = reader['main']['defaultdatafactory']
-            engine = RuleEngine(kb,dg)
-            self.put('dataRE', engine)
-            kb = reader['main']['imagekb']
-            dg = reader['main']['defaultimagefactory']
-            engine = RuleEngine(kb,dg)
-            self.put('imageRE', engine)
-            temp = reader['main']['fromdate']
-            self.put('fromdate', temp)
-            temp = reader['main']['todate']
-            self.put('todate', temp)
+        namefile = reader.read(f'run/{inifile}')
+        # non riesce a leggere il file @TODO
+        temp = reader['main']['outfolder']
+        self.put('outfolder', temp)
+        kb = reader['main']['datakb']
+        dg = reader['main']['defaultdatafactory']
+        engine = RuleEngine(kb,dg)
+        self.put('dataRE', engine)
+        kb = reader['main']['imagekb']
+        dg = reader['main']['defaultimagefactory']
+        engine = RuleEngine(kb,dg)
+        self.put('imageRE', engine)
+        temp = reader['main']['fromdate']
+        self.put('fromdate', temp)
+        temp = reader['main']['todate']
+        self.put('todate', temp)
 
-            temp = reader['image']['longitude']
-            self.put('longitude', float(temp))
-            temp = reader['image']['latitude']
-            self.put('latitude', float(temp))
-            temp = reader['image']['area']
-            self.put('area', float(temp))
-            temp = reader['image']['imageresolution']
-            self.put('imageresolution', int(temp))
-            temp = reader['image']['format']
-            self.put('format', temp)
-            temp = reader['image']['imagetimeinterval']
-            self.put('imagetimeinterval', float(temp))
+        temp = reader['image']['longitude']
+        self.put('longitude', float(temp))
+        temp = reader['image']['latitude']
+        self.put('latitude', float(temp))
+        temp = reader['image']['area']
+        self.put('area', float(temp))
+        temp = reader['image']['imageresolution']
+        self.put('imageresolution', int(temp))
+        temp = reader['image']['format']
+        self.put('format', temp)
+        temp = reader['image']['imagetimeinterval']
+        self.put('imagetimeinterval', float(temp))
 
-            datalist = self.tolist(reader['data']['data'])
-            self.put('data', datalist)
-            temp = reader['data']['datatimeinterval']
-            self.put('datatimeinterval', float(temp))
-        except Exception as s:
-            print(s)
+        datalist = self.tolist(reader['data']['data'])
+        self.put('data', datalist)
+        temp = reader['data']['datatimeinterval']
+        self.put('datatimeinterval', float(temp))
+

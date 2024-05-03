@@ -31,15 +31,15 @@ modes = {
 def grab(configurationname):
     configuration = Configuration(configurationname)
     # Image section
-    imageEngine = EngineFactory.generateImage(configuration)
-    imagefactory = FactoryGenerator.generate(imageEngine)
-    imagegrabber = imagefactory().generate(configuration)
-    imagegrabber.grub()
+    #imageEngine = EngineFactory.generateImage(configuration)
+    #imagefactory = FactoryGenerator.generate(imageEngine)
+    #imagegrabber = imagefactory().generate(configuration)
+    #imagegrabber.grub()
     # Data section
-    dataEngine = EngineFactory.generateData(configuration)
-    datafactory = FactoryGenerator.generate(dataEngine)
-    datagrabber = datafactory().generate(configuration)
-    datagrabber.grub()
+    dataEngine = EngineFactory().generateData(configuration)
+    datafactory = FactoryGenerator().generate(dataEngine)
+    datagrabber = datafactory().concretegeneration(configuration)
+    datagrabber.grub(configuration)
 
 def errormessage():
     print('There is an error in the command line! There are two arguments.')

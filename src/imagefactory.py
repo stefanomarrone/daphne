@@ -1,5 +1,5 @@
-from imaging import *
-from abstractfactory import ImageFactory
+from src.imaging import *
+from src.abstractfactory import ImageFactory
 
 class DummyImageFactory(ImageFactory):
     def concretegeneration(self, features):

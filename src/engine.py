@@ -8,6 +8,8 @@ class RuleEngine:
         for line in filehandler:
             line = line.removesuffix('\n')
             rule, function = line.split('---')
+            print(rule)
+            print(function)
             self.kbase[rule] = function
 
     def match(self, features):

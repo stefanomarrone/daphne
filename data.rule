@@ -1,1 +1,2 @@
-['>', ['var', 'area'], 10]---OPWDataFactory
+['>=', ['var', 'fromdate'], '2023-01-01']---OPWDataFactory
+['<=', ['var', 'todate'], '2024-01-01']---OPWDataFactory

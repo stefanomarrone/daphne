@@ -9,7 +9,8 @@ class FactoryGenerator():
             'DummyImageFactory': DummyImageFactory,
             'StupidDataFactory': StupidDataFactory,
             'StupidImageFactory': StupidImageFactory,
-            'OPWDataFactory': OPWDataFactory
+            'OPWDataFactory': OPWDataFactory,
+            'ModisImageFactory': ModisImageFactory
         }
         return map[factoryname]
 

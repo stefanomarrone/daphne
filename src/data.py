@@ -4,11 +4,11 @@ from typing import List
 import requests
 from dotenv import load_dotenv
 
-from call4API.Data.WeatherAPI import WeatherAPI
 from call4API.Data.WeatherData import WeatherDataFields, WeatherData
 from call4API.scripts.date_utils import date_to_timestamp
-from call4API.scripts.generate_extracted_data import make_filename, write_dicts_to_csv
+from call4API.scripts.csv_utils import generate_csv_filename, write_dicts_to_csv
 from call4API.scripts.json_utils import create_folder, generate_json_filepath, write_json_to_file
+from call4API.scripts.utils import define_coordinates
 
 
 def extract_feature_from_configuration(features):
@@ -18,7 +18,8 @@ def extract_feature_from_configuration(features):
     start_date = board['fromdate']
     end_date = board['todate']
     weather_feature_to_extract = board['data']
-    return lat, lon, start_date, end_date, weather_feature_to_extract
+    country_name = board['countryname']
+    return lat, lon, start_date, end_date, weather_feature_to_extract, country_name
 
 
 class OPWDataGrabber:
@@ -30,16 +31,18 @@ class OPWDataGrabber:
         load_dotenv()
 
         api_key = os.getenv('API_KEY')
-        lat, lon, start_date, end_date, weather_feature_to_extract \
+        lat, lon, start_date, end_date, weather_feature_to_extract, country_name \
             = extract_feature_from_configuration(configuration)
         weather_catalog_name = "OpenWeather"
+
+        lat, lon = define_coordinates(lat, lon, country_name)
         try:
             # Weather API call
             data = self.call_weather_api(lat, lon, start_date, end_date, api_key)
             # folder to store the weather data
-            folder_name = create_folder(lat, lon, start_date, end_date, weather_catalog_name)
+            folder_name = create_folder(lat, lon, country_name, start_date, end_date, weather_catalog_name)
             # file_path for the JSON weather file
-            file_path = generate_json_filepath(folder_name, lat, lon, start_date, end_date, weather_catalog_name)
+            file_path = generate_json_filepath(folder_name, lat, lon, country_name, start_date, end_date, weather_catalog_name)
             # JSON to file
             write_json_to_file(data, file_path)
 
@@ -48,10 +51,11 @@ class OPWDataGrabber:
             extracted_data = self.extract(weather_data.weather_list)
 
             # generate a filename to store the extracted weather data
-            extracted_data_file_name = make_filename(folder_name, lat, lon, start_date, end_date, weather_catalog_name)
+            extracted_data_file_name = generate_csv_filename(folder_name, lat, lon, country_name, start_date, end_date)
             # list of weather data to CSV file
             write_dicts_to_csv(extracted_data, extracted_data_file_name)
             print("Extracted data:", extracted_data)
+            print("Extraction data complete!")
             return extracted_data
         except:
             print('OpenWeather try gone wrong')
@@ -63,7 +67,6 @@ class OPWDataGrabber:
         return extracted_data
 
     def call_weather_api(self, lat, lon, start, end, api_key):
-
         start_unix = date_to_timestamp(start)
         end_unix = date_to_timestamp(end)
         url = f'{self.catalog_api_url}city?lat={lat}&lon={lon}&type=hour&start={start_unix}&end={end_unix}&units=metric&appid={api_key}'

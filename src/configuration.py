@@ -65,8 +65,7 @@ class Configuration(metaclass=Singleton):
 
     def load(self, inifile):
         reader = ConfigParser()
-        namefile = reader.read(f'run/{inifile}')
-        # non riesce a leggere il file @TODO
+        reader.read(f'run/{inifile}')
         temp = reader['main']['outfolder']
         self.put('outfolder', temp)
         kb = reader['main']['datakb']
@@ -83,11 +82,19 @@ class Configuration(metaclass=Singleton):
         self.put('todate', temp)
 
         temp = reader['image']['longitude']
-        self.put('longitude', float(temp))
+        if temp != '':
+            self.put('longitude', float(temp))
+        else:
+            self.put('longitude', '')
         temp = reader['image']['latitude']
-        self.put('latitude', float(temp))
+        if temp != '':
+            self.put('latitude', float(temp))
+        else:
+            self.put('latitude', '')
         temp = reader['image']['area']
         self.put('area', float(temp))
+        temp = reader['image']['countryname']
+        self.put('countryname', temp)
         temp = reader['image']['imageresolution']
         self.put('imageresolution', int(temp))
         temp = reader['image']['format']

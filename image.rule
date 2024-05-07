@@ -1,1 +1,2 @@
-['<', ['var', 'area'], 10]---StupidImageFactory
+['=', ['var', 'imageresolution'], 250]---ModisImageFactory
+['>=', ['var', 'fromdate'], '2000-02-18', '<=', ['var', 'todate'], '2024-04-06']---ModisImageFactory

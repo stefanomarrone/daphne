@@ -12,6 +12,16 @@ class image_catalog:
                 "max_date": "2024-04-06",
                 "resolution": "250m",
                 "ndvi": True
+            },
+            "LANDSAT": {
+                "catalog_name": "USGS_Landsat8_Collection2_Tier1_TOA_Reflectance",
+                "collection_name": "LANDSAT/LC09/C02/T1_L2",
+                "RGB_bands": ["SR_B4", "SR_B3", "SR_B2"],
+                "NIR_band": "SR_B5",
+                "min_date": "2013-03-18",
+                "max_date": "2024-05-02",
+                "resolution": "",
+                "ndvi": False
             }
         }
 

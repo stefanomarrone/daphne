@@ -1,6 +1,10 @@
 from src.imaging import *
 from src.abstractfactory import ImageFactory
 
+class LandsatImageFactory(ImageFactory):
+    def concretegeneration(self, configuration):
+        return LandsatImageGrubber(configuration)
+
 class ModisImageFactory(ImageFactory):
     def concretegeneration(self, configuration):
         return ModisImageGrubber(configuration)

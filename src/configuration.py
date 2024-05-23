@@ -1,6 +1,6 @@
-from metaclasses import Singleton
+from src.metaclasses import Singleton
 from configparser import ConfigParser
-from engine import RuleEngine
+from src.engine import RuleEngine
 import configparser
 
 class Configuration(metaclass=Singleton):

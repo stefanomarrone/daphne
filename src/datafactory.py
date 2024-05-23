@@ -1,5 +1,5 @@
-from data import *
-from abstractfactory import DataFactory
+from src.data import *
+from src.abstractfactory import DataFactory
 
 class DummyDataFactory(DataFactory):
     def concretegeneration(self, features):

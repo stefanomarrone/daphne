@@ -1,5 +1,5 @@
-from imagefactory import *
-from datafactory import *
+from src.imagefactory import *
+from src.datafactory import *
 
 class FactoryGenerator():
 

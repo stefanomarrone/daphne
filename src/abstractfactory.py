@@ -1,5 +1,5 @@
-from imaging import *
-from data import *
+from src.imaging import *
+from src.data import *
 
 
 class GrabberFactory():

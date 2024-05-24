@@ -1,4 +1,9 @@
-from fastapi import FastAPI
+import json
+import os
+from typing import List
+
+from fastapi import FastAPI, requests
+import requests
 from pydantic import BaseModel
 import uvicorn
 
@@ -7,16 +12,17 @@ app = FastAPI()
 # Definisci il modello dei dati JSON
 class Item(BaseModel):
     name: str
-    description: str = None
-    price: float
-    tax: float = None
+    content: str
+class Configurations(BaseModel):
+    configurations: List[Item]
+
 
 #Endpoint che legge Json
-@app.post("/items/")
-async def create_item(item: Item):
+@app.post("/items/") #router.get
+async def create_item(item: Configurations):
     return {"item": item}
 
-
-
-
 uvicorn.run(app,port=4416)
+
+
+

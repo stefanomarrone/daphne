@@ -4,6 +4,9 @@ import requests
 from pydantic import BaseModel
 import uvicorn
 
+from src.core import grab
+
+
 # Definisci il modello dei dati JSON
 class Item(BaseModel):
     name: str
@@ -19,7 +22,9 @@ app = FastAPI()
 @app.post("/execute/") #router.get
 def create_item(item: Configurations):
 
-
+    #todo: estrarre il contenuto delle configurazioni dal json
+    for configuration in configurationnames:
+        grab(configuration)
     return {"item": item}
 
 

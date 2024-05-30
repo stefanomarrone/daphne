@@ -22,9 +22,13 @@ app = FastAPI()
 @app.post("/execute/") #router.get
 def create_item(item: Configurations):
 
+    for configurations in item.configurations:
+
     #todo: estrarre il contenuto delle configurazioni dal json
-    for configuration in configurationnames:
-        grab(configuration)
+        content = configurations.content
+
+        grab(content)
+
     return {"item": item}
 
 

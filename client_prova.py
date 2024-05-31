@@ -1,61 +1,36 @@
+import os
 import requests
+import json
 
 mongoport = 1812
 mongoip = '127.0.0.1'
 
+file_path = os.path.join('inputs', 'input.json')
+
+# with open(file_path, 'r') as file:
+#     data = json.load(file)
+#
+#
+# x = data['configurations']
+# y = x[0]['name']
+
+
+image_path = os.path.join('output', 'Untitled.jpeg')
+image_path2 = os.path.join('output2', 'Untitled.jpeg')
+
+
 def addingDDM():
-    mongourl = 'http://' + mongoip + ':' + str(mongoport) + '/ddmodels?identifier=' + str(1) + '&version=' + str(1)
-    handler = open('modelfitted.keras', 'rb')
-    files = {"file": (handler.name, handler, "multipart/form-data")}
-    resp = requests.post(url=mongourl, files=files)
+    mongourl = 'http://' + mongoip + ':' + str(mongoport) + '/matforpat?identifier=' + 'configuration.ini'
+    handler = open("./output/Untitled.jpeg", 'rb')
+    files = {"file":( handler.name, handler, "multipart/form-data")}
+    resp = requests.post(url=mongourl,files=files)
+
     return resp.json()['success']
 
-
-def gettingDDM():
-    mongourl = 'http://' + mongoip + ':' + str(mongoport) + '/ddmodels?identifier=' + str(1) + '&version=' + str(1)
-    resp = requests.get(url=mongourl)
-    handler = open('test.keras','wb')
-    handler.write(resp.content)
-    handler.close()
-    return True
-
-
-def cleaning():
-    mongourl = 'http://' + mongoip + ':' + str(mongoport) + '/clean'
-    resp = requests.get(url=mongourl)
-    return resp.json()['success']
-
-def addingMBM():
-    mongourl = 'http://' + mongoip + ':' + str(mongoport) + '/mbmodels?identifier=' + str(1) + '&version=' + str(1)
-    handler = open('example.ftml', 'r')
-    files = {"file": (handler.name, handler, "multipart/form-data")}
-    resp = requests.post(url=mongourl, files=files)
-    return resp.json()['success']
-
-
-def gettingMBM():
-    mongoport = 1812
-    mongourl = 'http://127.0.0.1:' + str(mongoport) + '/mbmodels?identifier=' + str(1) + '&version=' + str(1)
-    resp = requests.get(url=mongourl)
-    handler = open('test.ftml','w')
-    handler.write(resp.json()['content'])
-    handler.close()
-    return resp.json()['success']
 
 
 if __name__ == '__main__':
-    print("Cleaning the database")
-    result = cleaning()
-    print(result)
-    print("Adding the Model Based Model")
-    result = addingMBM()
-    print(result)
-    print("Getting the Model Based Model")
-    result = gettingMBM()
-    print(result)
+
     print("Adding the Data Driven Model")
     result = addingDDM()
-    print(result)
-    print("Getting the Data Driven Model")
-    result = gettingDDM()
     print(result)

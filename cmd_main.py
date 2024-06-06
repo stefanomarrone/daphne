@@ -2,7 +2,6 @@ import sys
 import os
 from src.core import grab_name
 
-
 # Configuration functions
 def singleextractor(configurationname):
     retval = [configurationname]

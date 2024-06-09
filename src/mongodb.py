@@ -13,7 +13,7 @@ class MongoWriter:
             handler = open(binaryfilename, 'rb')
             files = {"file": (handler.name, handler, "multipart/form-data")}
             resp = requests.post(url=mongourl, files=files)
-            retval.result = resp.json(['success'])
+            retval.result = resp.json()['success']
         except Exception:
             pass
         return retval

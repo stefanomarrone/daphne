@@ -4,20 +4,23 @@ from src.core import grab
 from src.mongodb import MongoWriter
 from src.models import *
 from fastapi import APIRouter
-
+from src.utils import messagemaker
 
 router = APIRouter()
+
 @router.post("/execute")
 async def create_item(item: Experiments):
+    response = Response(list())
     for configurations in item.configurations:
         name = configurations.name
         content = configurations.content
         folder = folderextraction(content)
         writer = MongoWriter(router.mongodb_address, router.mongodb_port)
-        grab(content)
-        #todo: improve the feedback to the user
+        image_retval, data_retval = grab(content)
+        message = messagemaker(image_retval, data_retval)
+        single_response = SingleResponse(name, image_retval and data_retval, message, list())
         for file in glob.glob(folder + "/*"):
-            result = writer.write(name, file)
-    return {"item": item}
-
-
+            fileresponse = writer.write(name, file)
+            single_response.files.append(fileresponse)
+        response.reponses.append(single_response)
+    return response.dict()

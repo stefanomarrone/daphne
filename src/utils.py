@@ -5,5 +5,5 @@ def messagemaker(image_flag, data_flag):
         (False, True): 'error in image retrival',
         (False, False): 'error in both retrivals'
     }
-    message = responses((image_flag, data_flag))
+    message = responses[(image_flag, data_flag)]
     return message

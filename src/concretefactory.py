@@ -11,7 +11,7 @@ class FactoryGenerator():
             'StupidImageFactory': StupidImageFactory,
             'OPWDataFactory': OPWDataFactory,
             'ModisImageFactory': ModisImageFactory,
-            'LandsatImageFactory': LandsatImageFactory
+            'Landsat09ImageFactory': Landsat09ImageFactory
         }
         return map[factoryname]
 

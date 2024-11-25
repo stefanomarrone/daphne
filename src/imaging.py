@@ -35,11 +35,11 @@ class ImageGrabber():
         self.catalog = image_catalog()
 
 
-class LandsatImageGrubber:
+class Landsat09ImageGrubber:
     def __init__(self, configuration):
         self.configuration = configuration
 
-    def download_satellite_image(self, country_name, lat, lon, start_date, end_date, image_catalog_name="LANDSAT"):
+    def download_satellite_image(self, country_name, lat, lon, start_date, end_date, image_catalog_name="LANDSAT09"):
         # Initialize Earth Engine
         ee.Initialize()
 
@@ -66,24 +66,29 @@ class LandsatImageGrubber:
         end_date, end_h = change_date_format(end_date)
 
         # Load a satellite image collection (e.g., Landsat, Modis)
-        #collection = ee.ImageCollection(catalog) \
-            #.filterBounds(ee_point) \
-            #.filterDate(start_date, end_date) \
-            #.sort('CLOUD_COVER', True)\
-            #.first()
+        # collection = ee.ImageCollection(catalog) \
+        # .filterBounds(ee_point) \
+        # .filterDate(start_date, end_date) \
+        # .sort('CLOUD_COVER', True)\
+        # .first()
 
         image_collection = ee.ImageCollection(catalog) \
             .filterDate(start_date, end_date) \
-            .map(apply_scale_factors)\
+            .filterBounds(ee_point) \
+            .map(apply_scale_factors) \
+            .sort('CLOUD_COVER', True) \
             .first()
-
+        ndvi = image_collection.normalizedDifference(['SR_B5', 'SR_B4']).rename(['ndvi'])
+        images = image_collection.addBands(ndvi)
+        visualization = {'bands': ['SR_B4', 'SR_B3', 'SR_B2'],
+                         'min': 0,
+                         'max': 0.3,
+                         'scale': 300
+                         }
 
         image = ee.Image(image_collection)
         # Define the url
-        url = image.getDownloadUrl({'bands': ['SR_B4', 'SR_B3', 'SR_B2'],
-            'min': 0,
-            'max': 0.3,
-            'scale': 250})
+        url = image.getDownloadUrl(visualization)
 
         response = requests.get(url)
         with open(image_zip_filepath, 'wb') as f:

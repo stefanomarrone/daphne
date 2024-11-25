@@ -1,0 +1,11 @@
+
+Code to test "date_to_timestamp(date_str)" function:
+    date_string = '2024-04-28 7:17:14'  # Example date string
+    timestamp = date_to_timestamp(date_string)
+    print("Unix timestamp for", date_string, "is:", timestamp)
+
+---------------------------------------------------------
+Code to test "timestamp_to_date(timestamp)" function:
+   timestamp = 1714287600  # Example Unix timestamp
+   date_string = timestamp_to_date(timestamp)
+   print("Date for Unix timestamp", timestamp, "is:", date_string)

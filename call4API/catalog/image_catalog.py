@@ -13,13 +13,23 @@ class image_catalog:
                 "resolution": "250m",
                 "ndvi": True
             },
-            "LANDSAT": {
-                "catalog_name": "USGS_Landsat8_Collection2_Tier1_TOA_Reflectance",
+            "LANDSAT09": {
+                "catalog_name": "USGS_Landsat9_Level2_Collection2_Tier1",
                 "collection_name": "LANDSAT/LC09/C02/T1_L2",
                 "RGB_bands": ["SR_B4", "SR_B3", "SR_B2"],
                 "NIR_band": "SR_B5",
+                "min_date": "2021-10-31",
+                "max_date": "2024-06-04",
+                "resolution": "",
+                "ndvi": False
+            },
+            "LANDSAT08": {
+                "catalog_name": "USGS_Landsat8_Collection2_Tier1_RawScenes",
+                "collection_name": "LANDSAT/LC08/C02/T1",
+                "RGB_bands": ["B4", "B3", "B2"],
+                "NIR_band": "B5",
                 "min_date": "2013-03-18",
-                "max_date": "2024-05-02",
+                "max_date": "2024-06-08",
                 "resolution": "",
                 "ndvi": False
             }

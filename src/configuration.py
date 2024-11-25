@@ -1,5 +1,6 @@
 import tempfile
 
+from src.catalog.coordinateextractor import CoordinateExtractor
 from src.metaclasses import Singleton
 from configparser import ConfigParser
 from src.engine import RuleEngine
@@ -81,11 +82,13 @@ class Configuration(metaclass=Singleton):
             self.put('fromdate', temp)
             temp = reader['main']['todate']
             self.put('todate', temp)
-
-            temp = reader['image']['longitude']
-            self.put('longitude', float(temp))
-            temp = reader['image']['latitude']
-            self.put('latitude', float(temp))
+            # coordinates extraction
+            temp_latitude = reader['image']['latitude']
+            temp_longitude = reader['image']['longitude']
+            temp_country = reader['image']['countryname']
+            lat, lon = CoordinateExtractor.get_coordinates(temp_country, temp_latitude, temp_longitude)
+            self.put('latitude', lat)
+            self.put('latitude', lon)
             temp = reader['image']['area']
             self.put('area', float(temp))
             temp = reader['image']['imageresolution']
@@ -94,7 +97,6 @@ class Configuration(metaclass=Singleton):
             self.put('format', temp)
             temp = reader['image']['imagetimeinterval']
             self.put('imagetimeinterval', float(temp))
-
             datalist = self.tolist(reader['data']['data'])
             self.put('data', datalist)
             temp = reader['data']['datatimeinterval']

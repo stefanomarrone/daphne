@@ -11,3 +11,6 @@ class StupidDataFactory(DataFactory):
         return StupidDataGrubber(features)
 
 
+class OPWDataFactory(DataFactory):
+    def concretegeneration(self, configuration):
+        return OPWDataGrabber(configuration)

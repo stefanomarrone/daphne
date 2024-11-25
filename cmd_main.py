@@ -11,6 +11,7 @@ def singleextractor(configurationname):
 def folderextractor(foldername):
     retval = list(os.listdir(foldername))
     retval = list(filter(lambda x: x.endswith(".ini"), retval))
+    retval = list(map(lambda x: foldername + x, retval))
     return retval
 
 

@@ -1,5 +1,7 @@
 from src.imaging import *
 from src.abstractfactory import ImageFactory
+from src.satellite import Landsat09ImageGrubber, ModisImageGrubber
+
 
 class Landsat09ImageFactory(ImageFactory):
     def concretegeneration(self, configuration):

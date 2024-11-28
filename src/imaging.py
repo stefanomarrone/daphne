@@ -1,8 +1,10 @@
+from src.catalog.image_catalog import image_catalog
+
 class ImageGrabber():
     def __init__(self, features):
         pass
-        #todo extract single features
-
+        self.features = features
+        self.catalog = image_catalog()
 
 class DummyImageGrubber(ImageGrabber):
     def grub(self):

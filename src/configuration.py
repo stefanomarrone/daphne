@@ -68,6 +68,7 @@ class Configuration(metaclass=Singleton):
         reader = ConfigParser()
         reader.read(inifile)
         try:
+            #todo: manage the simualtion generator with the extra arguments or by managing multiple rule files
             temp = reader['main']['outfolder']
             self.put('outfolder', temp)
             kb = reader['main']['datakb']
@@ -88,7 +89,7 @@ class Configuration(metaclass=Singleton):
             temp_country = reader['image']['countryname']
             lat, lon = CoordinateExtractor.get_coordinates(temp_country, temp_latitude, temp_longitude)
             self.put('latitude', lat)
-            self.put('latitude', lon)
+            self.put('longitude', lon)
             temp = reader['image']['area']
             self.put('area', float(temp))
             temp = reader['image']['imageresolution']
@@ -103,7 +104,6 @@ class Configuration(metaclass=Singleton):
             self.put('datatimeinterval', float(temp))
         except Exception as s:
             print(s)
-
 
 def folderextraction(confcontent):
     tmp = tempfile.NamedTemporaryFile()

@@ -22,8 +22,7 @@ class SatelliteGrabber(ImageGrabber):
 
     def grab(self):
         # Initialize Earth Engine
-        ee.Initialize()
-        print('ciao')
+        ee.Initialize(project='mat4pat')
         c_lt, c_ln = define_coordinates(self.latitude, self.longitude, self.country_name)
         region = get_region_string([c_ln, c_lt],0.5)  # [lon, lat] ricorda che gee richiede le coordinate in modo inverso rispetto OPWeather
         ee_point = ee.Geometry.Rectangle(region)
@@ -33,14 +32,14 @@ class SatelliteGrabber(ImageGrabber):
         self.call_image_api(ee_point, image_zip_filepath)
         print('Exporting complete!')
 
-    def call_image_api(self, catalog, ee_point, image_zip_filepath):
+    def call_image_api(self, ee_point, image_zip_filepath):
         collection_name = ImageCatalog(self.catalog_name).get_collection_name()
         formatted_start_date, _ = change_date_format(self.start_date)
         formatted_end_date, _ = change_date_format(self.end_date)
         # Load a satellite image collection (e.g., Landsat, Modis)
         collection = self.get_collection(ee_point, collection_name, formatted_start_date, formatted_end_date)
         # Define the visualisation dictionary
-        visualization, = self.get_visualisations(ee_point)
+        visualization = self.get_visualisations(ee_point)
         image = ee.Image(collection)
         url = image.getDownloadUrl(visualization)
         response = requests.get(url)

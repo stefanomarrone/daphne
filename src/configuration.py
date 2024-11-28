@@ -88,6 +88,7 @@ class Configuration(metaclass=Singleton):
             temp_longitude = reader['image']['longitude']
             temp_country = reader['image']['countryname']
             lat, lon = CoordinateExtractor.get_coordinates(temp_country, temp_latitude, temp_longitude)
+            self.put('country_name', temp_country)
             self.put('latitude', lat)
             self.put('longitude', lon)
             temp = reader['image']['area']

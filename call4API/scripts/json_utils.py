@@ -38,7 +38,6 @@ def create_folder(lat, lon, country_name, start_date, end_date, catalog):
     # Create the folder in the workspace
     folder_path = os.path.join(os.getcwd(), folder_name)
     os.makedirs(folder_path, exist_ok=True)
-
     return folder_path
 
 

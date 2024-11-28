@@ -2,7 +2,7 @@ import ee
 import requests
 
 from src.catalog.coordinateextractor import CoordinateExtractor
-from src.catalog.image_catalog import image_catalog
+from src.catalog.imagecatalog import ImageCatalog
 from call4API.scripts.json_utils import create_folder, generate_zip_filepath
 from call4API.scripts.utils import get_region_string, change_date_format
 
@@ -17,7 +17,7 @@ def define_coordinates(lat, lon, country_name):
 
 class GeeAPI:
     def __init__(self):
-        self.catalog = image_catalog()
+        self.catalog = ImageCatalog()
 
     def call_image_api(self, catalog, ee_point, start_date, end_date, image_zip_filepath):
         start_date, str_h = change_date_format(start_date)
@@ -53,7 +53,7 @@ class GeeAPI:
                                    0.5)  # [lon, lat] ricorda che gee richiede le coordinate in modo inverso rispetto OPWeather
         ee_point = ee.Geometry.Rectangle(region)
 
-        catalog = image_catalog().get_collection_name(image_catalog_name)
+        catalog = ImageCatalog().get_collection_name()
 
         output_folder = create_folder(c_lt, c_ln, country_name, start_date, end_date,
                                       image_catalog_name)

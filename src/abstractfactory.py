@@ -10,7 +10,7 @@ class GrabberFactory():
 
 class ImageFactory(GrabberFactory):
     def getfeatures(self, configuration):
-        featurenames = ['fromdate', 'todate', 'longitude', 'latitude', 'area', 'imageresolution', 'format', 'imagetimeinterval']
+        featurenames = ['fromdate', 'todate', 'longitude', 'country_name', 'latitude', 'area', 'imageresolution', 'format', 'imagetimeinterval']
         features = configuration.extract(featurenames)
         return features
 

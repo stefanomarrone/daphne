@@ -21,15 +21,15 @@ def imagegrab(configuration):
         imageEngine = EngineFactory.generateImage(configuration)
         imagefactory = FactoryGenerator.generate(imageEngine)
         imagegrabber = imagefactory().generate(configuration)
-        imagegrabber.grub()
+        imagegrabber.grab()
         # Data section
         dataEngine = EngineFactory.generateData(configuration)
         datafactory = FactoryGenerator.generate(dataEngine)
         datagrabber = datafactory().generate(configuration)
-        datagrabber.grub()
+        datagrabber.grab()
         retval = True
-    except Exception:
-        pass
+    except Exception as e:
+        print(e)
     return retval
 
 
@@ -40,7 +40,7 @@ def datagrab(configuration):
         dataEngine = EngineFactory.generateData(configuration)
         datafactory = FactoryGenerator.generate(dataEngine)
         datagrabber = datafactory().generate(configuration)
-        datagrabber.grub()
+        datagrabber.grab()
         retval = True
     except Exception:
         pass

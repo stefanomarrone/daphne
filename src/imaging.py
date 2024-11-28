@@ -1,15 +1,16 @@
-from src.catalog.image_catalog import image_catalog
+from src.catalog.imagecatalog import ImageCatalog
 
 class ImageGrabber():
     def __init__(self, features):
         pass
-        self.features = features
-        self.catalog = image_catalog()
 
-class DummyImageGrubber(ImageGrabber):
-    def grub(self):
+    def grab(self):
+        pass
+
+class DummyImageGrabber(ImageGrabber):
+    def grab(self):
         print("This is a test. And this is the DummyImageGrubber")
 
-class StupidImageGrubber(ImageGrabber):
-    def grub(self):
+class StupidImageGrabber(ImageGrabber):
+    def grab(self):
         print("This is a test. And this is the StupidImageGrubber")

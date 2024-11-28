@@ -1,6 +1,7 @@
 from src.imaging import *
 from src.abstractfactory import ImageFactory
-from src.satellite import Landsat09ImageGrubber, ModisImageGrubber
+from src.landsat import Landsat09ImageGrubber
+from src.modis import ModisImageGrabber
 
 
 class Landsat09ImageFactory(ImageFactory):
@@ -9,14 +10,14 @@ class Landsat09ImageFactory(ImageFactory):
 
 class ModisImageFactory(ImageFactory):
     def concretegeneration(self, configuration):
-        return ModisImageGrubber(configuration)
+        return ModisImageGrabber(configuration)
 
 class DummyImageFactory(ImageFactory):
     def concretegeneration(self, features):
-        return DummyImageGrubber(features)
+        return DummyImageGrabber(features)
 
 class StupidImageFactory(ImageFactory):
     def concretegeneration(self, features):
-        return StupidImageGrubber(features)
+        return StupidImageGrabber(features)
 
 

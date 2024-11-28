@@ -27,7 +27,7 @@ class ImageCatalog:
             "RGB_bands": ["B4", "B3", "B2"],
             "NIR_band": "B5",
             "min_date": "2013-03-18",
-            "max_date": "2024-06-08",
+            "max_date": "2024-11-16",
             "resolution": "",
             "ndvi": False
         }

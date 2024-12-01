@@ -16,7 +16,7 @@ class ImageFactory(GrabberFactory):
 
 class DataFactory(GrabberFactory):
     def getfeatures(self, configuration):
-        featurenames = ['data', 'datatimeinterval']
+        featurenames = ['fromdate', 'todate', 'longitude', 'country_name', 'latitude', 'data', 'datatimeinterval']
         features = configuration.extract(featurenames)
         return features
 
@@ -31,7 +31,7 @@ class EngineFactory:
 
     def generateData(configuration):
         re = 'dataRE'
-        fnames = ['fromdate', 'todate', 'longitude', 'latitude', 'area', 'imageresolution', 'format', 'imagetimeinterval']
+        fnames = ['fromdate', 'todate', 'longitude', 'latitude', 'country_name', 'data', 'datatimeinterval']
         return EngineFactory.generate(configuration, re, fnames)
 
 

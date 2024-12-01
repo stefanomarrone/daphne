@@ -28,6 +28,8 @@ class OPWDataGrabber:
         self.initialise(features)
 
     def initialise(self, features):
+        self.data = features['data']
+        self.timeinterval = features['datatimeinterval']
         self.latitude = features['latitude']
         self.longitude = features['longitude']
         self.start_date = features['fromdate']
@@ -35,9 +37,9 @@ class OPWDataGrabber:
         self.country_name = features['country_name']
 
 
-    def grab(self, configuration):
+    def grab(self):
         load_dotenv()
-        api_key = os.getenv('API_KEY')
+        api_key = os.getenv('OPW_API_KEY')
         weather_catalog_name = "OpenWeather"
 
         lat, lon = define_coordinates(self.latitude, self.longitude, self.country_name)

@@ -3,7 +3,7 @@ import tempfile
 from src.catalog.coordinateextractor import CoordinateExtractor
 from src.metaclasses import Singleton
 from configparser import ConfigParser
-from src.engine import RuleEngine
+from src.engine import EngineSelector
 import configparser
 
 class Configuration(metaclass=Singleton):
@@ -69,16 +69,17 @@ class Configuration(metaclass=Singleton):
         reader.read(inifile)
         try:
             #todo: manage the simualtion generator with the extra arguments or by managing multiple rule files
+            #todo: improve the DRY principle
             temp = reader['main']['outfolder']
             self.put('outfolder', temp)
-            kb = reader['main']['datakb']
-            dg = reader['main']['defaultdatafactory']
-            engine = RuleEngine(kb,dg)
-            self.put('dataRE', engine)
             kb = reader['main']['imagekb']
             dg = reader['main']['defaultimagefactory']
-            engine = RuleEngine(kb,dg)
+            engine = EngineSelector(kb, dg)
             self.put('imageRE', engine)
+            kb = reader['main']['datakb']
+            dg = reader['main']['defaultdatafactory']
+            engine = EngineSelector(kb, dg)
+            self.put('dataRE', engine)
             temp = reader['main']['fromdate']
             self.put('fromdate', temp)
             temp = reader['main']['todate']
@@ -94,7 +95,7 @@ class Configuration(metaclass=Singleton):
             temp = reader['image']['area']
             self.put('area', float(temp))
             temp = reader['image']['imageresolution']
-            self.put('imageresolution', int(temp))
+            self.put('imageresolution', float(temp))
             temp = reader['image']['format']
             self.put('format', temp)
             temp = reader['image']['imagetimeinterval']

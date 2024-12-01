@@ -27,7 +27,7 @@ class OPWDataGrabber:
         self.configuration = configuration
         self.catalog_api_url = 'https://history.openweathermap.org/data/2.5/history/'
 
-    def grub(self, configuration):
+    def grab(self, configuration):
         load_dotenv()
 
         api_key = os.getenv('API_KEY')
@@ -103,9 +103,9 @@ class DataGrabber():
 
 
 class DummyDataGrubber(DataGrabber):
-    def grub(self):
+    def grab(self):
         print("This is a test. And this is the DummyDataGrubber")
 
 class StupidDataGrubber(DataGrabber):
-    def grub(self):
+    def grab(self):
         print("This is a test. And this is the StupidDataGrubber")

@@ -3,7 +3,6 @@ from src.concretefactory import FactoryGenerator
 from src.configuration import Configuration
 import tempfile
 
-
 def grab(configuration):
     retval = (False, False)
     tmp = tempfile.NamedTemporaryFile()
@@ -12,7 +11,6 @@ def grab(configuration):
         f.flush()
         retval = grab_name(tmp.name)
     return retval
-
 
 def imagegrab(configuration):
     retval = False
@@ -27,7 +25,6 @@ def imagegrab(configuration):
         print(e)
     return retval
 
-
 def datagrab(configuration):
     retval = False
     try:
@@ -37,10 +34,9 @@ def datagrab(configuration):
         datagrabber = datafactory().generate(configuration)
         datagrabber.grab()
         retval = True
-    except Exception:
-        pass
+    except Exception as e:
+        print(e)
     return retval
-
 
 def grab_name(configurationname):
     image_retval = False

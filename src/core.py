@@ -22,11 +22,6 @@ def imagegrab(configuration):
         imagefactory = FactoryGenerator.generate(imageEngine)
         imagegrabber = imagefactory().generate(configuration)
         imagegrabber.grab()
-        # Data section
-        dataEngine = EngineFactory.generateData(configuration)
-        datafactory = FactoryGenerator.generate(dataEngine)
-        datagrabber = datafactory().generate(configuration)
-        datagrabber.grab()
         retval = True
     except Exception as e:
         print(e)

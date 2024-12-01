@@ -1,7 +1,5 @@
 from datetime import datetime
 
-from src.catalog.coordinateextractor import CoordinateExtractor
-
 
 def date_to_date_hour(date):
     data_ora = datetime.strptime(date, "%Y-%m-%d %H:%M:%S")
@@ -45,9 +43,3 @@ def get_region_string(coords, region_size):
     bottom = coords[1] - region_size / 2
     return [left, bottom, right, top]
 
-def define_coordinates(lat, lon, country_name):
-    if lat != '' and lon != '':
-        return lat, lon
-    elif country_name is not None:
-        coordinates = CoordinateExtractor().get_coordinates(country_name)
-        return list(coordinates.values())

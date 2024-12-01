@@ -8,7 +8,7 @@ from call4API.Data.WeatherData import WeatherDataFields, WeatherData
 from call4API.scripts.date_utils import date_to_timestamp
 from call4API.scripts.csv_utils import generate_csv_filename, write_dicts_to_csv
 from call4API.scripts.json_utils import create_folder, generate_json_filepath, write_json_to_file
-from call4API.scripts.utils import define_coordinates
+from src.utils import define_coordinates
 
 
 def extract_feature_from_configuration(features):

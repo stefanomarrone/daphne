@@ -2,7 +2,8 @@ import ee
 import requests
 
 from call4API.scripts.json_utils import create_folder, generate_zip_filepath
-from call4API.scripts.utils import define_coordinates, get_region_string, change_date_format
+from call4API.scripts.utils import get_region_string, change_date_format
+from src.utils import define_coordinates
 from src.catalog.imagecatalog import ImageCatalog
 from src.satellite import SatelliteGrabber
 

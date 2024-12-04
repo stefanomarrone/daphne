@@ -24,7 +24,9 @@ def extract_feature_from_configuration(features):
 
 class OPWDataGrabber:
     def __init__(self, features):
-        self.catalog_api_url = 'https://history.openweathermap.org/data/2.5/history/'
+        #self.catalog_api_url = 'https://history.openweathermap.org/data/2.5/history/' old call
+        #self.catalog_api_url ='https://api.openweathermap.org/data/2.5/weather?'
+        self.catalog_api_url = 'https://api.openweathermap.org/data/2.5/forecast?'
         self.initialise(features)
 
     def initialise(self, features):
@@ -36,7 +38,6 @@ class OPWDataGrabber:
         self.end_date = features['todate']
         self.country_name = features['country_name']
 
-
     def grab(self):
         load_dotenv()
         api_key = os.getenv('OPW_API_KEY')
@@ -47,9 +48,11 @@ class OPWDataGrabber:
             # Weather API call
             data = self.call_weather_api(lat, lon, self.start_date, self.end_date, api_key)
             # folder to store the weather data
-            folder_name = create_folder(lat, lon, self.country_name, self.start_date, self.end_date, weather_catalog_name)
+            folder_name = create_folder(lat, lon, self.country_name, self.start_date, self.end_date,
+                                        weather_catalog_name)
             # file_path for the JSON weather file
-            file_path = generate_json_filepath(folder_name, lat, lon, self.country_name, self.start_date, self.end_date, weather_catalog_name)
+            file_path = generate_json_filepath(folder_name, lat, lon, self.country_name, self.start_date, self.end_date,
+                                               weather_catalog_name)
             # JSON to file
             write_json_to_file(data, file_path)
 
@@ -58,25 +61,31 @@ class OPWDataGrabber:
             extracted_data = self.extract(weather_data.weather_list)
 
             # generate a filename to store the extracted weather data
-            extracted_data_file_name = generate_csv_filename(folder_name, lat, lon, self.country_name, self.start_date, self.end_date)
+            extracted_data_file_name = generate_csv_filename(folder_name, lat, lon, self.country_name, self.start_date,
+                                                             self.end_date)
             # list of weather data to CSV file
             write_dicts_to_csv(extracted_data, extracted_data_file_name)
             print("Extracted data:", extracted_data)
             print("Extraction data complete!")
             return extracted_data
-        except:
+        except Exception as e:
+            print(e)
             print('OpenWeather try gone wrong')
 
     def extract(self, data: List[WeatherDataFields]):
         extracted_data = []
         for item in data:
-            extracted_data.append(item.get_features(self.configuration.board['data']))
+            #extracted_data.append(item.get_features(self.configuration.board['data']))
+            extracted_data.append(item.get_features(self.data))
         return extracted_data
 
     def call_weather_api(self, lat, lon, start, end, api_key):
         start_unix = date_to_timestamp(start)
         end_unix = date_to_timestamp(end)
-        url = f'{self.catalog_api_url}city?lat={lat}&lon={lon}&type=hour&start={start_unix}&end={end_unix}&units=metric&appid={api_key}'
+        #url = f'{self.catalog_api_url}city?lat={lat}&lon={lon}&type=hour&start={start_unix}&end={end_unix}&units=metric&appid={api_key}' old call
+        #url = f'{self.catalog_api_url}lat={lat}&lon={lon}&type=hour&start={start_unix}&end={end_unix}&units=metric&appid={api_key}'
+        url = f'{self.catalog_api_url}lat={lat}&lon={lon}&appid={api_key}'
+        print(url)
         response = requests.get(url)
         if response.status_code == 200:
             # Parse the JSON response
@@ -93,13 +102,16 @@ class OPWDataGrabber:
 class LDataGrabber:
     def __init__(self, features):
         self.features = features
-		
+
+
 class MDataGrabber:
     def __init__(self, features):
         self.features = features
 
+
 class DataGrabber():
     def __init__(self, features):
+        self.features = features
         pass
         # todo extract single features
 
@@ -107,6 +119,7 @@ class DataGrabber():
 class DummyDataGrubber(DataGrabber):
     def grab(self):
         print("This is a test. And this is the DummyDataGrubber")
+
 
 class StupidDataGrubber(DataGrabber):
     def grab(self):

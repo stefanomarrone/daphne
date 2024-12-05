@@ -24,8 +24,6 @@ def extract_feature_from_configuration(features):
 
 class OPWDataGrabber:
     def __init__(self, features):
-        #self.catalog_api_url = 'https://history.openweathermap.org/data/2.5/history/' old call
-        #self.catalog_api_url ='https://api.openweathermap.org/data/2.5/weather?'
         self.catalog_api_url = 'https://api.openweathermap.org/data/2.5/forecast?'
         self.initialise(features)
 

@@ -40,3 +40,10 @@ if __name__ == '__main__':
             grab_name(configurationname)
     else:
         errormessage()
+
+
+#todo: testing last changes with the fastapi approach
+#todo: integrate the simulator
+#todo: to implement the NDVI data provider
+#todo: to implement the data provider
+#todo: improve deployability

@@ -8,6 +8,8 @@ class FactoryGenerator():
         'StupidDataFactory': StupidDataFactory,
         'StupidImageFactory': StupidImageFactory,
         'OPWDataFactory': OPWDataFactory,
+        'OpenMeteoPyFactory': OpenMeteoPyFactory,
+        'VisualCrossingFactory': VisualCrossingFactory,
         'ModisImageFactory': ModisImageFactory,
         'Landsat09ImageFactory': Landsat09ImageFactory
     }

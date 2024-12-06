@@ -14,3 +14,11 @@ class StupidDataFactory(DataFactory):
 class OPWDataFactory(DataFactory):
     def concretegeneration(self, configuration):
         return OPWDataGrabber(configuration)
+
+class OpenMeteoPyFactory(DataFactory):
+    def concretegeneration(self, configuration):
+        return OpenMeteoPyGrabber(configuration)
+
+class VisualCrossingFactory(DataFactory):
+    def concretegeneration(self, configuration):
+        return VisualCrossingGrabber(configuration)

@@ -15,6 +15,7 @@ from call4API.scripts.csv_utils import generate_csv_filename, write_dicts_to_csv
 from call4API.scripts.date_utils import date_to_timestamp
 from call4API.scripts.json_utils import create_folder, generate_json_filepath, write_json_to_file
 from src.utils import define_coordinates
+import pandas as pd
 
 
 def extract_feature_from_configuration(features):
@@ -69,8 +70,8 @@ class OPWDataGrabber:
                                                              self.end_date)
             # list of weather data to CSV file
             write_dicts_to_csv(extracted_data, extracted_data_file_name)
-            #print("Extracted data:", extracted_data)
-            #print("Extraction data complete!")
+            # print("Extracted data:", extracted_data)
+            # print("Extraction data complete!")
             return extracted_data
         except Exception as e:
             print(e)
@@ -79,15 +80,15 @@ class OPWDataGrabber:
     def extract(self, data: List[WeatherDataFields]):
         extracted_data = []
         for item in data:
-            #extracted_data.append(item.get_features(self.configuration.board['data']))
+            # extracted_data.append(item.get_features(self.configuration.board['data']))
             extracted_data.append(item.get_features(self.data))
         return extracted_data
 
     def call_weather_api(self, lat, lon, start, end, api_key):
         start_unix = date_to_timestamp(start)
         end_unix = date_to_timestamp(end)
-        #url = f'{self.catalog_api_url}city?lat={lat}&lon={lon}&type=hour&start={start_unix}&end={end_unix}&units=metric&appid={api_key}' old call
-        #url = f'{self.catalog_api_url}lat={lat}&lon={lon}&type=hour&start={start_unix}&end={end_unix}&units=metric&appid={api_key}'
+        # url = f'{self.catalog_api_url}city?lat={lat}&lon={lon}&type=hour&start={start_unix}&end={end_unix}&units=metric&appid={api_key}' old call
+        # url = f'{self.catalog_api_url}lat={lat}&lon={lon}&type=hour&start={start_unix}&end={end_unix}&units=metric&appid={api_key}'
         url = f'{self.catalog_api_url}lat={lat}&lon={lon}&appid={api_key}'
         print(url)
         response = requests.get(url)
@@ -142,7 +143,7 @@ class OpenMeteoPyGrabber:
 
             # Download data
             meteo = mgr.get_pandas()
-            meteo_df = meteo[0] #TODO: add a cloumn date
+            meteo_df = meteo[0]  # TODO: add a cloumn date
 
             # folder to store the weather data
             folder_name = create_folder(lat, lon, self.country_name, self.start_date, self.end_date,
@@ -158,6 +159,9 @@ class OpenMeteoPyGrabber:
             print(e)
             print('OpenMeteoPy try gone wrong')
 
+
+# per ogni Provider scrivi un Grabber -> prendi il json specifico per il grabber e converti in modo da renderlo generico nella classe WeatherData
+# Questo servirà quando vuoi usare WeatherData in modo agnostico rispetto al provider
 class VisualCrossingGrabber:
     def __init__(self, features):
         self.catalog_api_url = 'https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/'
@@ -172,39 +176,42 @@ class VisualCrossingGrabber:
         self.start_date = features['fromdate']
         self.end_date = features['todate']
         self.country_name = features['country_name']
+        #loading api key
+        load_dotenv()
+        self.api_key = os.getenv('VisCross_API_KEY')
+        self.weather_catalog_name = "VisualCrossing"
 
     def grab(self):
-        load_dotenv()
-        api_key = os.getenv('VisCross_API_KEY')
-        weather_catalog_name = "VisualCrossing"
+
 
         lat, lon = define_coordinates(self.latitude, self.longitude, self.country_name)
         try:
-            # Weather API call
-            data = self.call_weather_api(lat, lon, self.start_date, self.end_date, api_key)
+            # Weather API call, returns a csv
+            data: pd.DataFrame = self.call_weather_api()
             # folder to store the weather data
             folder_name = create_folder(lat, lon, self.country_name, self.start_date, self.end_date,
-                                        weather_catalog_name)
-            # file_path for the JSON weather file
-            file_path = generate_json_filepath(folder_name, lat, lon, self.country_name, self.start_date, self.end_date,
-                                               weather_catalog_name)
-            # JSON to file
-            write_json_to_file(data, file_path)
+                                        self.weather_catalog_name)
+            # file_path for the csv weather file
+            filename = generate_csv_filename(folder_name, lat, lon, self.country_name, self.start_date,
+                                             self.end_date)
 
-        #@TODO: complete the data extraction
+            data.to_csv(filename, index=False)
+
         except Exception as e:
             print(e)
             print('VisualCrossing try gone wrong')
 
-    def call_weather_api(self, lat, lon, start, end, api_key):
-        start_unix = date_to_timestamp(start)
-        end_unix = date_to_timestamp(end)
-        url = f'{self.catalog_api_url}%20lat={lat}%2Clon={lon}/{start}/{end}?unitGroup=us&include=days&key={api_key}&contentType=json'
+    def call_weather_api(self):
+        start_date_obj = datetime.strptime(self.start_date, "%Y-%m-%d %H:%M:%S")
+        start_date = start_date_obj.date()
+        end_date_obj = datetime.strptime(self.end_date, "%Y-%m-%d %H:%M:%S")
+        end_date = end_date_obj.date()
+        url = f'{self.catalog_api_url}%20lat={self.latitude}%2Clon={self.longitude}/{start_date}/{end_date}?unitGroup=us&include=days&key={self.api_key}&contentType=csv'
         print(url)
         response = requests.get(url)
         if response.status_code == 200:
-            # Parse the JSON response
-            data = response.json()
+            # Parse the csv response
+            data = pd.read_csv(response.content)
             # Process the data as needed
             return data
         else:
@@ -212,9 +219,11 @@ class VisualCrossingGrabber:
             print('Reason:', response.reason)
             raise Exception('Error')
 
+
 class LDataGrabber:
     def __init__(self, features):
         self.features = features
+
 
 class DataGrabber():
     def __init__(self, features):

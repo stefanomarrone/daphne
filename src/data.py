@@ -183,11 +183,10 @@ class VisualCrossingGrabber:
 
     def grab(self):
 
-
         lat, lon = define_coordinates(self.latitude, self.longitude, self.country_name)
         try:
             # Weather API call, returns a csv
-            data: pd.DataFrame = self.call_weather_api()
+            data: pd.DataFrame = self.call_weather_api(lat, lon)
             # folder to store the weather data
             folder_name = create_folder(lat, lon, self.country_name, self.start_date, self.end_date,
                                         self.weather_catalog_name)
@@ -201,12 +200,12 @@ class VisualCrossingGrabber:
             print(e)
             print('VisualCrossing try gone wrong')
 
-    def call_weather_api(self):
+    def call_weather_api(self, lat, lon):
         start_date_obj = datetime.strptime(self.start_date, "%Y-%m-%d %H:%M:%S")
         start_date = start_date_obj.date()
         end_date_obj = datetime.strptime(self.end_date, "%Y-%m-%d %H:%M:%S")
         end_date = end_date_obj.date()
-        url = f'{self.catalog_api_url}%20lat={self.latitude}%2Clon={self.longitude}/{start_date}/{end_date}?unitGroup=us&include=days&key={self.api_key}&contentType=csv'
+        url = f'{self.catalog_api_url}%20lat={lat}%2Clon={lon}/{start_date}/{end_date}?unitGroup=us&include=days&key={self.api_key}&contentType=csv'
         print(url)
         response = requests.get(url)
         if response.status_code == 200:

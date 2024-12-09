@@ -9,7 +9,8 @@ class FactoryGenerator():
         'StupidImageFactory': StupidImageFactory,
         'OPWDataFactory': OPWDataFactory,
         'ModisImageFactory': ModisImageFactory,
-        'Landsat09ImageFactory': Landsat09ImageFactory
+        'Landsat09ImageFactory': Landsat09ImageFactory,
+        'Landsat08ImageFactory': Landsat08ImageFactory
     }
 
     def generate(factoryname):

@@ -8,10 +8,10 @@ from src.catalog.imagecatalog import ImageCatalog
 from src.satellite import SatelliteGrabber
 
 
-class Landsat09ImageGrubber(SatelliteGrabber):
-    def __init__(self, features):
-        self.catalog_name = "LANDSAT09"
+class LandsatImageGrubber(SatelliteGrabber):
+    def __init__(self, features, catalog_name):
         self.initialise(features)
+        self.catalog_name = catalog_name
 
     def apply_scale_factors(self, image):
         # Applicazione dei fattori di scala per le bande ottiche

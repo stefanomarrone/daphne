@@ -1,0 +1,48 @@
+metadata:
+    version: 0.0.1
+    type: Rule
+    id: 8330dd39-a0a4-4f21-0003-1f8e30000001
+    created: '2023-12-15 04:54:00.349206'
+    required_context_parameters:
+    - imageresolution
+    - nature
+    name: landsat08
+    parent_id: null
+if:
+   and:
+    -   condition:
+            metadata:
+                version: 0.3.0
+                type: Condition
+                id: 8330dd39-a0a4-4f21-0003-1f8e30000002
+                created: '2023-12-15 04:54:00.349063'
+                required_context_parameters:
+                - nature
+            variable: nature
+            operator: '=='
+            value:
+                type: string
+                value: 'real'
+    -    condition:
+            metadata:
+                version: 0.3.0
+                type: Condition
+                id: 8330dd39-a0a4-4f21-0003-1f8e30000003
+                created: '2023-12-15 04:54:00.349063'
+                required_context_parameters:
+                - imageresolution
+            variable: imageresolution
+            operator: '>='
+            value:
+                type: float
+                value: 250.0
+then:
+    result:
+        enginefactory:
+            type: str
+            value: Landsat08ImageFactory
+else:
+    result:
+        enginefactory:
+            type: str
+            value: None

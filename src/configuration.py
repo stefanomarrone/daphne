@@ -72,13 +72,15 @@ class Configuration(metaclass=Singleton):
             #todo: improve the DRY principle
             temp = reader['main']['outfolder']
             self.put('outfolder', temp)
-            kb = reader['main']['imagekb']
-            dg = reader['main']['defaultimagefactory']
-            engine = EngineSelector(kb, dg)
+            kbfolder = reader['knowledge']['kbbasefolder']
+            self.put('kbbasefolder', kbfolder)
+            kb = reader['knowledge']['imagekb']
+            dg = reader['knowledge']['defaultimagefactory']
+            engine = EngineSelector(kb, dg, kbfolder)
             self.put('imageRE', engine)
-            kb = reader['main']['datakb']
-            dg = reader['main']['defaultdatafactory']
-            engine = EngineSelector(kb, dg)
+            kb = reader['knowledge']['datakb']
+            dg = reader['knowledge']['defaultdatafactory']
+            engine = EngineSelector(kb, dg, kbfolder)
             self.put('dataRE', engine)
             temp = reader['main']['fromdate']
             self.put('fromdate', temp)

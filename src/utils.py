@@ -1,6 +1,5 @@
 from src.catalog.coordinateextractor import CoordinateExtractor
 
-
 def messagemaker(image_flag, data_flag):
     responses = {
         (True, True): 'no error',
@@ -11,6 +10,12 @@ def messagemaker(image_flag, data_flag):
     message = responses[(image_flag, data_flag)]
     return message
 
+def get_content(file_name):
+    handle = open(file_name, 'r')
+    retval = handle.readlines()
+    retval = ''.join(retval)
+    handle.close()
+    return retval
 
 def define_coordinates(lat, lon, country_name):
     if lat != '' and lon != '':

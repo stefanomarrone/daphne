@@ -5,22 +5,27 @@ from py_rules.engine import RuleEngine
 from py_rules.storages import RuleStorage
 import ast
 
+from src.utils import get_content
+
+yaml.Dumper.ignore_aliases = lambda *args: True
 
 class EngineSelector:
-    def __init__(self, knowledgebase, ddefaultgrabber):
+    def __init__(self, knowledge_base_filename, ddefaultgrabber, kb_folder):
         self.defaultgrabber = ddefaultgrabber
-        self.kbase = self.load_knowledgebase(knowledgebase)
+        self.kbase = self.load_knowledgebase(kb_folder, knowledge_base_filename)
 
     def load(self, rule_content):
         parser = RuleParser(rule_content)
-        return parser.load()
+        retval = parser.load()
+        return retval
 
-    def load_knowledgebase(self, knowledgebase):
-        with open(knowledgebase, 'r', encoding='utf-8') as file:
+    def load_knowledgebase(self, kb_folder, knowledge_base_filename):
+        with open(kb_folder + knowledge_base_filename, 'r', encoding='utf-8') as file:
             content = file.read()
             structure = ast.literal_eval(content)
             structure = list(filter(lambda x: x[1], structure))
-            structure = list(map(lambda x: x[0], structure))
+            structure = list(map(lambda x: kb_folder + x[0], structure))
+            structure = list(map(get_content, structure))
             structure = list(map(self.load, structure))
         return structure
 
@@ -35,12 +40,7 @@ class EngineSelector:
         return match
 
 
-
-
-yaml.Dumper.ignore_aliases = lambda *args: True
-
 class RuleParser(RuleStorage):
-
     def __init__(self, content):
         super().__init__()
         self.content = content

@@ -25,7 +25,8 @@ class EngineFactory:
 
     def generateImage(configuration):
         re = 'imageRE'
-        fnames = ['fromdate', 'todate', 'longitude', 'latitude', 'area', 'imageresolution', 'format', 'imagetimeinterval']
+        fnames = ['nature', 'fromdate', 'todate', 'longitude', 'latitude', 'area', 'imageresolution', 'format',
+                  'imagetimeinterval']
         return EngineFactory.generate(configuration, re, fnames)
 
 

@@ -3,6 +3,7 @@ import os
 from src.configuration import Configuration
 from src.concretefactory import FactoryGenerator
 from src.abstractfactory import EngineFactory
+from dotenv import load_dotenv
 
 
 # Configuration functions
@@ -50,6 +51,8 @@ def errormessage():
 
 
 if __name__ == '__main__':
+    load_dotenv()
+    print(os.environ.get("API_KEY_SKYFI"))
     if len(sys.argv) == 3:
         mode = sys.argv[1]
         nameextractor = modes.get(mode, dumbextractor)

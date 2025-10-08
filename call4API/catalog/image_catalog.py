@@ -32,6 +32,15 @@ class image_catalog:
                 "max_date": "2024-06-08",
                 "resolution": "",
                 "ndvi": False
+            },
+        "SkyFi": {
+            "catalog_name": "",
+            "collection_name": "",
+            "RGB_bands": "",
+            "NIR_band": "",
+            "min_date": "2013-03-18",
+            "max_date": "2024-06-08",
+            "resolution": ["0.3m", "0.5m", "1m"],
             }
         }
 

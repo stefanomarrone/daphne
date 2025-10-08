@@ -19,6 +19,13 @@ class GeeAPI:
     def __init__(self):
         self.catalog = image_catalog()
 
+    def inizialize(self):
+        # Initialize Earth Engine
+        ee.Initialize(project="ee-stelladebiase")
+
+    def authenticate(self):
+        ee.Authenticate()
+
     def call_image_api(self, catalog, ee_point, start_date, end_date, image_zip_filepath):
         start_date, str_h = change_date_format(start_date)
         end_date, end_h = change_date_format(end_date)
@@ -45,7 +52,7 @@ class GeeAPI:
 
     def download_satellite_image(self, country_name, lat, lon, start_date, end_date, image_catalog_name="MODIS"):
         # Initialize Earth Engine
-        ee.Initialize()
+        self.inizialize()
 
         c_lt, c_ln = define_coordinates(lat, lon, country_name)
 

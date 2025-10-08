@@ -1,5 +1,7 @@
 
 from call4API.Image.GeeAPI import GeeAPI
+from dotenv import load_dotenv
+import os
 
 if __name__ == '__main__':
 
@@ -15,4 +17,7 @@ if __name__ == '__main__':
 
 
     geeAPI = GeeAPI()
+    geeAPI.authenticate()
     geeAPI.download_satellite_image(country_name, lat, lon, start_date, end_date, image_catalog_name)
+    load_dotenv()
+    skyfi_key = os.getenv('API_KEY_SKYFI')

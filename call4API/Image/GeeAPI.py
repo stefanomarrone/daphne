@@ -1,5 +1,8 @@
+import os
+
 import ee
 import requests
+from dotenv import load_dotenv
 
 from call4API.catalog.coordinates_catalog import coordinates_catalog
 from call4API.catalog.image_catalog import image_catalog
@@ -21,7 +24,9 @@ class GeeAPI:
 
     def inizialize(self):
         # Initialize Earth Engine
-        ee.Initialize(project="ee-stelladebiase")
+        load_dotenv()
+        project_gee_key = os.getenv('EARTHENGINE_PROJECT')
+        ee.Initialize(project=project_gee_key)
 
     def authenticate(self):
         ee.Authenticate()

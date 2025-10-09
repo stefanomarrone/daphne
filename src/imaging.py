@@ -1,6 +1,11 @@
+import os
+
 import ee
 import requests
 from IPython.display import display
+from dotenv import load_dotenv
+import logging
+import httpx
 from call4API.catalog.image_catalog import image_catalog
 from call4API.scripts.json_utils import create_folder, generate_zip_filepath
 from call4API.scripts.utils import get_region_string, change_date_format, define_coordinates
@@ -34,6 +39,30 @@ class ImageGrabber():
         self.features = features
         self.catalog = image_catalog()
 
+class SkifyImageGrubber:
+    def __init__(self, configuration):
+        self.configuration = configuration
+
+    def call_image_api(self):
+        load_dotenv()
+        api_key = os.environ.get("API_KEY_SKYFI")
+        headers = {"X-Skyfi-Api-Key": api_key}
+        ping_response = httpx.get("https://app.skyfi.com/platform-api/ping", headers=headers)
+        ping = ping_response.json()
+
+        logging.info(f"ping: {ping['message']}")
+
+        pass
+
+    def download_satellite_image(self, country_name, lat, lon, start_date, end_date, image_catalog_name="Skify"):
+        self.call_image_api()
+        pass
+
+    def grub(self, configuration):
+        lat, lon, start_date, end_date, country_name \
+            = extract_feature_from_configuration(configuration)
+        image_catalog_name = "Skify"
+        self.download_satellite_image(country_name, lat, lon, start_date, end_date, image_catalog_name)
 
 class Landsat09ImageGrubber:
     def __init__(self, configuration):
@@ -162,12 +191,3 @@ class ModisImageGrubber:
         # Print a message indicating that the export has started
         return print('Exporting image...')
 
-
-class DummyImageGrubber(ImageGrabber):
-    def grub(self):
-        print("This is a test. And this is the DummyImageGrubber")
-
-
-class StupidImageGrubber(ImageGrabber):
-    def grub(self):
-        print("This is a test. And this is the StupidImageGrubber")

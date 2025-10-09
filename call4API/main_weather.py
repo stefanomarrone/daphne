@@ -4,8 +4,9 @@ from call4API.Data.WeatherData import WeatherData
 from call4API.scripts.csv_utils import *
 
 from call4API.scripts.json_utils import *
-from src.data import DataGrabber
 from dotenv import load_dotenv
+
+from src.data import OPWDataGrabber
 
 lat = -28.038970
 lon = 18.105889
@@ -15,7 +16,7 @@ weather_catalog_name = "OpenWeather"
 
 if __name__ == '__main__':
     load_dotenv()
-    api_key = os.getenv('API_KEY')
+    api_key = os.getenv('OPENWEATHER_API_KEY')
     weatherAPI = WeatherAPI()
     try:
         # Weather API call
@@ -32,7 +33,7 @@ if __name__ == '__main__':
         weather_data = WeatherData(data)
 
         features_to_extract = ['date', 'temperature', 'humidity', 'pressure']
-        data_grabber = DataGrabber(features_to_extract)
+        data_grabber = OPWDataGrabber(features_to_extract)
         extracted_data = data_grabber.grub(weather_data.weather_list)
 
         # generate a filename to store the extracted weather data

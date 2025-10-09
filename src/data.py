@@ -30,7 +30,7 @@ class OPWDataGrabber:
     def grub(self, configuration):
         load_dotenv()
 
-        api_key = os.getenv('API_KEY')
+        api_key = os.getenv('OPENWEATHER_API_KEY')
         lat, lon, start_date, end_date, weather_feature_to_extract, country_name \
             = extract_feature_from_configuration(configuration)
         weather_catalog_name = "OpenWeather"
@@ -85,24 +85,3 @@ class OPWDataGrabber:
             print('Error:', response.status_code)
             print('Reason:', response.reason)
             raise Exception('Error')
-
-
-# other grabber for other services
-class LDataGrabber:
-    def __init__(self, features):
-        self.features = features
-
-
-class MDataGrabber:
-    def __init__(self, features):
-        self.features = features
-
-
-class DummyDataGrubber(LDataGrabber):
-    def grub(self):
-        print("This is a test. And this is the DummyDataGrubber")
-
-
-class StupidDataGrubber(MDataGrabber):
-    def grub(self):
-        print("This is a test. And this is the StupidDataGrubber")

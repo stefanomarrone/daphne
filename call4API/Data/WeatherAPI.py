@@ -7,7 +7,8 @@ from call4API.scripts.date_utils import date_to_timestamp
 class WeatherAPI:
     def __init__(self):
         self.catalog = {
-            "OpenWeather": 'https://history.openweathermap.org/data/2.5/history/',
+            #"OpenWeather": 'https://history.openweathermap.org/data/2.5/history/'
+            "OpenWeather": 'https://api.openweathermap.org/data/2.5/weather?',
             "Gee": ""
         }
 
@@ -15,7 +16,8 @@ class WeatherAPI:
 
         start_unix = date_to_timestamp(start)
         end_unix = date_to_timestamp(end)
-        url = f'{self.catalog[catalog_name]}city?lat={lat}&lon={lon}&type=hour&start={start_unix}&end={end_unix}&units=metric&appid={api_key}'
+        #url = f'{self.catalog_api_url}city?lat={lat}&lon={lon}&type=hour&start={start_unix}&end={end_unix}&units=metric&appid={api_key}'
+        url = f'{self.catalog[catalog_name]}lat={lat}&lon={lon}&appid={api_key}'
         # Make a GET request to the API endpoint
         response = requests.get(url)
 

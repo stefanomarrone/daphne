@@ -9,13 +9,8 @@ class ModisImageFactory(ImageFactory):
     def concretegeneration(self, configuration):
         return ModisImageGrubber(configuration)
 
-class DummyImageFactory(ImageFactory):
-    def concretegeneration(self, features):
-        return DummyImageGrubber(features)
-
-
-class StupidImageFactory(ImageFactory):
-    def concretegeneration(self, features):
-        return StupidImageGrubber(features)
+class SkifyImageFactory(ImageFactory):
+    def concretegeneration(self, configuration):
+        return SkifyImageGrubber(configuration)
 
 

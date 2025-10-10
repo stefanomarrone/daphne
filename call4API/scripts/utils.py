@@ -51,3 +51,11 @@ def define_coordinates(lat, lon, country_name):
     elif country_name is not None:
         coordinates = coordinates_catalog().get_coordinates(country_name)
         return list(coordinates.values())
+
+def _pct(x):
+    try:
+        # I valori che vedi (es. 0.000311) sembrano già "percento".
+        # Se scoprissi che sono frazione (0..1), moltiplica per 100 qui.
+        return f"{float(x):.2f}%"
+    except Exception:
+        return "-"

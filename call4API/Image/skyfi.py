@@ -1,16 +1,23 @@
 import os
 from typing import List, Dict, Any
-
 import httpx
 from dotenv import load_dotenv
 import webbrowser
+from pathlib import Path
+from html import escape
+from call4API.catalog.polygon_catalog import polygon_catalog
+from call4API.scripts.date_utils import date_to_iso, _fmt_date
+from call4API.scripts.utils import _pct
+
 
 class Skyfi:
-    def __init__(self):
+    def __init__(self, country_name):
+        # todo to add -> self.configuration = configuration
         load_dotenv()
         self.api_key = os.environ.get("API_KEY_SKYFI")
         self.base_url = "https://app.skyfi.com/platform-api"
         self.base_url_auth = "https://app.skyfi.com/platform-api/auth/"
+        self.country_name = country_name
 
     def _auth_headers(self):
         return {"X-Skyfi-Api-Key": self.api_key} if self.api_key else {}
@@ -115,18 +122,18 @@ class Skyfi:
         except httpx.RequestError as e:
             return {"status": "error", "message": f"Errore: {e}"}
 
-    def get_catalog(self, aoi_wkt: str, fromDate: str,toDate: str,resolutions: List[str],productTypes: List[str],providers: List[str],
-        maxCloudCoveragePercent: int = 10, maxOffNadirAngle: int = 4,openData: bool = True,) -> Dict[str, Any]:
+    def get_catalog(self, country_name: str, fromDate: str, toDate: str, resolutions: List[str], productTypes: List[str], providers: List[str],
+        maxCloudCoveragePercent: int = 100, maxOffNadirAngle: int = 50, openData: bool = True) -> Dict[str, Any]:
         try:
             request = {
-                "aoi": aoi_wkt,
-                "fromDate": "2000-01-01T00:00:00",
-                "toDate": "2024-12-31T00:00:00",
+                "aoi": polygon_catalog().get_polygon_catalog(country_name),
+                "fromDate": date_to_iso(fromDate),
+                "toDate": date_to_iso(toDate),
                 "maxCloudCoveragePercent": maxCloudCoveragePercent,
                 "maxOffNadirAngle": maxOffNadirAngle,
-                "resolutions": ["VERY HIGH"],
-                "productTypes": ["DAY", "MULTISPECTRAL"],
-                "providers": ["SATELLOGIC", "SENTINEL2_CREODIAS"],
+                "resolutions": resolutions,
+                "productTypes": productTypes,
+                "providers": providers,
                 "openData": openData,
                 "minOverlapRatio": 0.1,
                 "pageSize": 100
@@ -147,3 +154,47 @@ class Skyfi:
             return {"status": "error", "code": e.response.status_code, "message": e.response.text}
         except httpx.RequestError as e:
             return {"status": "error", "message": f"Errore: {e}"}
+
+
+
+    def save_catalog_gallery(self, archives, title="SkyFi Catalog"):
+        #Genera una galleria HTML (static) con miniature e info chiave.
+        cards = []
+        for a in archives:
+            thumb = (a.get("thumbnailUrls") or {}).get("300x300")
+            archiveId = a.get("archiveId", "-")
+            provider = a.get("provider", "-")
+            date = _fmt_date(a.get("captureTimestamp", "-"))
+            cloud = _pct(a.get("cloudCoveragePercent", "-"))
+            res = a.get("resolution", "-")
+            gsd = a.get("gsd", "-")
+            # Se la thumb esiste, rendila cliccabile per vederla full-size
+            img_html = f'<a href="{escape(thumb)}" target="_blank"><img src="{escape(thumb)}" alt="thumb" style="width:150px;height:150px;object-fit:cover;border-radius:12px;"></a>' if thumb else "<div style='width:150px;height:150px;background:#eee;border-radius:12px;display:flex;align-items:center;justify-content:center;'>no thumb</div>"
+            cards.append(f"""
+            <div style="border:1px solid #ddd;border-radius:14px;padding:12px;margin:10px;width:220px;font-family:Arial">
+              <div style="text-align:center">{img_html}</div>
+              <div style="margin-top:8px;font-size:12px;line-height:1.2">
+                <div><b>ID</b>: {escape(archiveId)}</div>
+                <div><b>Prov</b>: {escape(str(provider))}</div>
+                <div><b>Date</b>: {escape(date)}</div>
+                <div><b>Cloud</b>: {escape(cloud)}</div>
+                <div><b>Res</b>: {escape(str(res))}</div>
+                <div><b>GSD</b>: {escape(str(gsd))}</div>
+              </div>
+            </div>""")
+
+        html = f"""<!doctype html>
+    <html>
+    <head><meta charset="utf-8"><title>{escape(title)}</title></head>
+    <body style="margin:20px;background:#fafafa">
+      <h2 style="font-family:Arial;margin-bottom:10px">{escape(title)}</h2>
+      <div style="display:flex;flex-wrap:wrap">{''.join(cards)}</div>
+      <p style="font-family:Arial;color:#666">Suggerimento: clicca sulle miniature per aprirle in un nuovo tab, poi copia l'<code>archiveId</code> che ti interessa.</p>
+    </body>
+    </html>"""
+        out_dir = Path("skyfiCatalog")
+        out_dir.mkdir(parents=True, exist_ok=True)
+        out_path = f"{out_dir}/catalog_gallery_{self.country_name}.html"
+        Path(out_path).write_text(html, encoding="utf-8")
+        return print("Catalogo salvato in:" + str(Path(out_path).resolve()))
+

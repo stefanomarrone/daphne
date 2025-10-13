@@ -11,13 +11,19 @@ from call4API.scripts.utils import _pct
 
 
 class Skyfi:
-    def __init__(self, country_name):
-        # todo to add -> self.configuration = configuration
+    def __init__(self, conf):
         load_dotenv()
         self.api_key = os.environ.get("API_KEY_SKYFI")
         self.base_url = "https://app.skyfi.com/platform-api"
         self.base_url_auth = "https://app.skyfi.com/platform-api/auth/"
-        self.country_name = country_name
+        self.countryname = conf.get("countryname")
+        self.resolutions = [p.upper() for p in conf.get("resolutions")]
+        self.productTypes = [p.upper() for p in conf.get("productTypes")]
+        self.providers = [p.upper() for p in conf.get("providers")]
+        self.openData = conf.get("openData")
+        self.fromdate = date_to_iso(conf.get("fromdate"))
+        self.todate = date_to_iso(conf.get("todate"))
+        self.maxCloudCoveragePercent = conf.get("maxCloudCoveragePercent")
 
     def _auth_headers(self):
         return {"X-Skyfi-Api-Key": self.api_key} if self.api_key else {}
@@ -122,19 +128,18 @@ class Skyfi:
         except httpx.RequestError as e:
             return {"status": "error", "message": f"Errore: {e}"}
 
-    def get_catalog(self, country_name: str, fromDate: str, toDate: str, resolutions: List[str], productTypes: List[str], providers: List[str],
-        maxCloudCoveragePercent: int = 100, maxOffNadirAngle: int = 50, openData: bool = True) -> Dict[str, Any]:
+    def get_catalog(self) -> Dict[str, Any]:
         try:
             request = {
-                "aoi": polygon_catalog().get_polygon_catalog(country_name),
-                "fromDate": date_to_iso(fromDate),
-                "toDate": date_to_iso(toDate),
-                "maxCloudCoveragePercent": maxCloudCoveragePercent,
-                "maxOffNadirAngle": maxOffNadirAngle,
-                "resolutions": resolutions,
-                "productTypes": productTypes,
-                "providers": providers,
-                "openData": openData,
+                "aoi": polygon_catalog().get_polygon_catalog(self.countryname),
+                "fromDate": self.fromdate,
+                "toDate": self.todate,
+                "maxCloudCoveragePercent": self.maxCloudCoveragePercent,
+                "maxOffNadirAngle": 50,
+                "resolutions": self.resolutions,
+                "productTypes": self.productTypes,
+                "providers": self.providers,
+                "openData": self.openData,
                 "minOverlapRatio": 0.1,
                 "pageSize": 100
             }
@@ -194,7 +199,7 @@ class Skyfi:
     </html>"""
         out_dir = Path("skyfiCatalog")
         out_dir.mkdir(parents=True, exist_ok=True)
-        out_path = f"{out_dir}/catalog_gallery_{self.country_name}.html"
+        out_path = f"{out_dir}/catalog_gallery_{self.countryname}_{self.fromdate}_{self.todate}_openData{self.openData}.html"
         Path(out_path).write_text(html, encoding="utf-8")
         return print("Catalogo salvato in:" + str(Path(out_path).resolve()))
 

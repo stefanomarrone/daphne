@@ -66,6 +66,7 @@ class Configuration(metaclass=Singleton):
     def load(self, inifile):
         reader = ConfigParser()
         reader.read(f'run/{inifile}')
+        #MAIN
         temp = reader['main']['outfolder']
         self.put('outfolder', temp)
         kb = reader['main']['datakb']
@@ -80,7 +81,7 @@ class Configuration(metaclass=Singleton):
         self.put('fromdate', temp)
         temp = reader['main']['todate']
         self.put('todate', temp)
-
+        #IMAGE
         temp = reader['image']['longitude']
         if temp != '':
             self.put('longitude', float(temp))
@@ -91,17 +92,32 @@ class Configuration(metaclass=Singleton):
             self.put('latitude', float(temp))
         else:
             self.put('latitude', '')
-        temp = reader['image']['area']
-        self.put('area', float(temp))
+        #temp = reader['image']['area']
+        #self.put('area', float(temp))
         temp = reader['image']['countryname']
         self.put('countryname', temp)
         temp = reader['image']['imageresolution']
         self.put('imageresolution', int(temp))
         temp = reader['image']['format']
         self.put('format', temp)
-        temp = reader['image']['imagetimeinterval']
-        self.put('imagetimeinterval', float(temp))
+        #temp = reader['image']['imagetimeinterval']
+        #self.put('imagetimeinterval', float(temp))
+        temp = reader['image'].get('resolutions', [])
+        temp = self.tolist(temp)
+        self.put('resolutions', temp)
+        temp = reader['image'].get('productTypes', [])
+        temp = self.tolist(temp)
+        self.put('productTypes', temp)
+        temp = reader['image'].get('providers', [])
+        temp = self.tolist(temp)
+        self.put('providers', temp)
+        temp = reader['image'].get('openData', True)
+        self.put('openData', bool(temp))
+        temp = reader['image'].get('maxCloudCoveragePercent', 100)
+        self.put('maxCloudCoveragePercent', int(temp))
 
+
+        #DATA
         datalist = self.tolist(reader['data']['data'])
         self.put('data', datalist)
         temp = reader['data']['datatimeinterval']

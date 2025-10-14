@@ -111,8 +111,8 @@ class Configuration(metaclass=Singleton):
         temp = reader['image'].get('providers', [])
         temp = self.tolist(temp)
         self.put('providers', temp)
-        temp = reader['image'].get('openData', True)
-        self.put('openData', bool(temp))
+        temp = reader['image'].get('openData', 'True')
+        self.put('openData', temp)
         temp = reader['image'].get('maxCloudCoveragePercent', 100)
         self.put('maxCloudCoveragePercent', int(temp))
 

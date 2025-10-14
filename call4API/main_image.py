@@ -11,9 +11,10 @@ from call4API.Image.skyfi import Skyfi
 def skyfi(conf: Configuration):
     sky = Skyfi(conf)
     sky.get_current_user()
-    catalog_response = sky.get_catalog()
-    sky.save_catalog_gallery(catalog_response['archives'])
-
+    #catalog_response = sky.get_catalog()
+    #sky.save_catalog_gallery(catalog_response['archives'])
+    order_json_path = "skyfiJSON/skyfi_selected_20251014_182449.json"
+    sky.order_from_json(order_json_path)
 functions = {
     'skyfi': skyfi,
 }

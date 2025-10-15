@@ -7,7 +7,8 @@ from dotenv import load_dotenv
 from call4API.catalog.coordinates_catalog import coordinates_catalog
 from call4API.catalog.image_catalog import image_catalog
 from call4API.scripts.json_utils import create_folder, generate_zip_filepath
-from call4API.scripts.utils import get_region_string, change_date_format
+from call4API.scripts.utils import get_region_string
+from call4API.scripts.date_utils import date_to_date_hour, change_date_format
 
 
 def define_coordinates(lat, lon, country_name):

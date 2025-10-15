@@ -2,7 +2,7 @@ import json
 import os
 
 # function to read a JSON.
-from call4API.scripts.utils import date_to_date_hour, change_date_format
+from call4API.scripts.date_utils import date_to_date_hour, change_date_format
 
 
 def read_json_file(file_path):

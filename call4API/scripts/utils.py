@@ -3,39 +3,6 @@ from datetime import datetime
 from call4API.catalog.coordinates_catalog import coordinates_catalog
 
 
-def date_to_date_hour(date):
-    data_ora = datetime.strptime(date, "%Y-%m-%d %H:%M:%S")
-    data_part = data_ora.date().strftime("%Y-%m-%d")
-    hour_part = data_ora.time().strftime("%H")
-    return data_part, hour_part
-
-
-def is_date_format_without_hour_originale(date_string):
-    format = '%Y-%m-%d %H:%M:%S'
-    if bool(datetime.strptime(date_string, format)):
-        return False
-    else:
-        return True
-
-
-def is_date_format_without_hour(date_string):
-    format = '%Y-%m-%d %H:%M:%S'
-    try:
-        datetime.strptime(date_string, format)
-        return False  # Se il parsing va a buon fine, restituisce False
-    except ValueError:
-        return True
-
-
-def change_date_format(date_string):
-    if is_date_format_without_hour(date_string):
-        str_d = date_string
-        str_h = '-'
-    else:
-        str_d, str_h = date_to_date_hour(date_string)
-    return str_d, str_h
-
-
 # function to define a rectangle given lat-lon and region_size
 # xMin, yMin, xMax, yMax
 def get_region_string(coords, region_size):
@@ -55,7 +22,17 @@ def define_coordinates(lat, lon, country_name):
 def _pct(x):
     try:
         # I valori che vedi (es. 0.000311) sembrano già "percento".
-        # Se scoprissi che sono frazione (0..1), moltiplica per 100 qui.
         return f"{float(x):.2f}%"
     except Exception:
         return "-"
+
+
+def extract_feature_from_configuration(conf):
+    board = conf.board
+    lat = board['latitude']
+    lon = board['longitude']
+    start_date = board['fromdate']
+    end_date = board['todate']
+    weather_feature_to_extract = board['data']
+    country_name = board['countryname']
+    return lat, lon, start_date, end_date, weather_feature_to_extract, country_name

@@ -7,16 +7,13 @@ from dotenv import load_dotenv
 import webbrowser
 from pathlib import Path
 from html import escape
+
+from call4API.catalog.coordinates_catalog import coordinates_catalog
 from call4API.catalog.polygon_catalog import polygon_catalog
 from call4API.scripts.date_utils import date_to_iso, _fmt_date
-from call4API.scripts.utils import _pct
+from call4API.scripts.utils import _pct, extract_feature_from_configuration
+from call4API.template.skyfi_template_html import skyfi_template_html
 
-geometry = {
-    "type": "Polygon",
-    "coordinates": [[[12.4924, 41.8902], [12.4925, 41.8902],
-                     [12.4925, 41.8903], [12.4924, 41.8903],
-                     [12.4924, 41.8902]]]
-}
 
 class Skyfi:
     def __init__(self, conf):
@@ -24,15 +21,30 @@ class Skyfi:
         self.api_key = os.environ.get("API_KEY_SKYFI")
         self.base_url = "https://app.skyfi.com/platform-api"
         self.base_url_auth = "https://app.skyfi.com/platform-api/auth/"
-        self.countryname = conf.get("countryname")
+        lat, lon, fromdate, todate, _, countryname = extract_feature_from_configuration(conf)
+        self.lat = lat
+        self.lon = lon
+        self.countryname = self._countryname()
+        self.aoi = polygon_catalog().create_polygon(self.lat, self.lon)
         self.resolutions = [p.upper() for p in conf.get("resolutions")]
         self.productTypes = [p.upper() for p in conf.get("productTypes")]
         self.providers = [p.upper() for p in conf.get("providers")]
-        self.openData = conf.get("openData")
-        self.fromdate = date_to_iso(conf.get("fromdate"))
-        self.todate = date_to_iso(conf.get("todate"))
+        self.openData = self.openData = str(conf.get("openData")).strip().lower() == "true"
+        self.fromdate = date_to_iso(fromdate)
+        self.todate = date_to_iso(todate)
         self.maxCloudCoveragePercent = conf.get("maxCloudCoveragePercent")
-        self.aoi = polygon_catalog().get_polygon_catalog(self.countryname)
+
+    def _countryname(self):
+        if self.lat != None and self.lon != None:
+            return coordinates_catalog().get_countryname(self.lat, self.lon)
+
+    def _aoi(self):
+        if self.countryname != '':
+            return polygon_catalog().get_polygon_catalog(self.countryname)
+        elif self.lat != None and self.lon != None:
+            return polygon_catalog().create_polygon(self.lat, self.lon)
+        else:
+            return None
 
     def _auth_headers(self):
         return {"X-Skyfi-Api-Key": self.api_key} if self.api_key else {}
@@ -66,37 +78,6 @@ class Skyfi:
         r.raise_for_status()
         response = r.json()
         return print(response["info"]["title"], response["openapi"])
-
-    def demo_delivery(self, geometry, product_type="optical", resolution=0.5, start_date=None, end_date=None, driver="GS"):
-        # simula un acquisto
-        deliveryParams = {
-            "geometry": geometry,
-            "product_type": product_type,
-            "resolution": resolution,
-            "time_range": {
-                "start": start_date or "2024-01-01",
-                "end": end_date or "2024-02-01"
-            }
-        }
-        payload = {
-            "deliveryDriver": driver,
-            "deliveryParams": deliveryParams
-        }
-        response = httpx.post(
-            f"{self.base_url}/demo-delivery",
-            headers={**self._auth_headers(), "Content-Type": "application/json"},
-            json=payload,
-            timeout=30.0,
-        )
-
-        if response.status_code == 200:
-            return response.json()
-        else:
-            return {
-                "status": "error",
-                "code": response.status_code,
-                "message": response.text
-            }
 
     def get_current_user(self, verbose: bool = True):
         try:
@@ -140,7 +121,7 @@ class Skyfi:
                 "resolutions": self.resolutions,
                 "productTypes": self.productTypes,
                 "providers": self.providers,
-                "openData": self.openData == 'True',
+                "openData": self.openData,
                 "minOverlapRatio": 0.1,
                 "pageSize": 100
             }
@@ -155,14 +136,16 @@ class Skyfi:
             }
             return result
 
-
         except httpx.HTTPStatusError as e:
             return {"status": "error", "code": e.response.status_code, "message": e.response.text}
         except httpx.RequestError as e:
             return {"status": "error", "message": f"Errore: {e}"}
 
-    def save_catalog_gallery(self, archives, title="SkyFi Catalog"):
+    def catalog_gallery(self, title="SkyFi Catalog"):
         # Genera una galleria HTML (static) con selezione multipla e azioni (copia/scarica)
+        catalog_response = self.get_catalog()
+        archives = catalog_response['archives']
+
         from datetime import datetime
         stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 
@@ -203,99 +186,7 @@ class Skyfi:
               </div>
             </div>""")
 
-        html = f"""<!doctype html>
-    <html>
-    <head>
-    <meta charset="utf-8">
-    <title>{escape(title)}</title>
-    <style>
-      body {{ margin:20px;background:#fafafa;font-family:Inter,Arial,Helvetica,sans-serif }}
-      h2 {{ margin:0 0 12px 0 }}
-      .wrap {{ display:flex;flex-wrap:wrap;gap:12px }}
-      .card {{
-        position:relative; border:1px solid #ddd; border-radius:14px; padding:12px; width:230px;
-        background:#fff; box-shadow:0 1px 2px rgba(0,0,0,.04);
-      }}
-      .thumb {{ text-align:center; margin-bottom:8px }}
-      .meta {{ font-size:12px; line-height:1.25 }}
-      .chk {{ position:absolute; top:10px; left:10px; cursor:pointer }}
-      .chk input {{ display:none }}
-      .chk span {{
-        display:inline-block; width:20px; height:20px; border-radius:6px; border:2px solid #666;
-        background:#fff; box-shadow:inset 0 0 0 3px #fff;
-      }}
-      .chk input:checked + span {{ background:#1e88e5; border-color:#1e88e5 }}
-      .bar {{
-        position:fixed; left:50%; transform:translateX(-50%); bottom:16px;
-        background:#fff; border:1px solid #ddd; border-radius:12px; padding:8px 12px;
-        box-shadow:0 6px 20px rgba(0,0,0,.12); display:flex; gap:8px; align-items:center; z-index:9999;
-      }}
-      .btn {{
-        border:1px solid #ccc; border-radius:10px; padding:6px 10px; background:#f7f7f7;
-        cursor:pointer; font-size:13px;
-      }}
-      .btn:hover {{ background:#eee }}
-      .idsbox {{
-        min-width:220px; max-width:520px; font-family:ui-monospace,Menlo,Consolas,monospace;
-        font-size:12px; border:1px dashed #ccc; border-radius:8px; padding:6px; background:#fcfcfc;
-        white-space:nowrap; overflow:auto;
-      }}
-      .tip {{
-        color:#666; font-size:12px; margin-top:10px
-      }}
-    </style>
-    </head>
-    <body>
-      <h2>{escape(title)}</h2>
-      <div class="wrap">{''.join(cards)}</div>
-
-      <div class="tip">Suggerimento: clicca sulle miniature per aprirle in un nuovo tab. Spunta più immagini per creare la lista di <code>archiveId</code>.</div>
-
-      <div class="bar">
-        <div id="count"><b>0</b> selezionati</div>
-        <button class="btn" id="copy">Copia</button>
-        <button class="btn" id="csv">Scarica CSV</button>
-        <button class="btn" id="json">Scarica JSON</button>
-        <div class="idsbox" id="ids">[]</div>
-      </div>
-
-    <script>
-    function getSelected() {{
-      return Array.from(document.querySelectorAll('.sel:checked')).map(el => el.value);
-    }}
-    function updateUI() {{
-      const ids = getSelected();
-      document.getElementById('count').innerHTML = '<b>' + ids.length + '</b> selezionati';
-      document.getElementById('ids').textContent = JSON.stringify(ids);
-    }}
-    document.addEventListener('change', e => {{
-      if (e.target.classList.contains('sel')) updateUI();
-    }});
-    function download(filename, text, type='text/plain') {{
-      const blob = new Blob([text], {{type}});
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url; a.download = filename; document.body.appendChild(a); a.click();
-      setTimeout(() => {{ URL.revokeObjectURL(url); a.remove(); }}, 0);
-    }}
-    document.getElementById('copy').onclick = async () => {{
-      const ids = getSelected();
-      await navigator.clipboard.writeText(ids.join('\\n'));
-      document.getElementById('copy').textContent = 'Copiato ✓';
-      setTimeout(()=> document.getElementById('copy').textContent='Copia', 1000);
-    }};
-    document.getElementById('csv').onclick = () => {{
-      const ids = getSelected();
-      const lines = ['archiveId']; ids.forEach(id => lines.push(id));
-      download('skyfi_selected_{stamp}.csv', lines.join('\\n'), 'text/csv');
-    }};
-    document.getElementById('json').onclick = () => {{
-      const ids = getSelected();
-      download('skyfi_selected_{stamp}.json', JSON.stringify({{archiveIds: ids}}, null, 2), 'application/json');
-    }};
-    </script>
-    </body>
-    </html>"""
+        html = skyfi_template_html(title, cards, stamp).get_template()
         out_dir = Path("skyfiCatalog")
         out_dir.mkdir(parents=True, exist_ok=True)
         out_path = f"{out_dir}/catalog_gallery_{self.countryname}_{self.fromdate}_{self.todate}_openData{self.openData}.html"
@@ -316,15 +207,16 @@ class Skyfi:
         for item in response_data:
             filename = ""
             try:
-                order_id = item.get("id")
+                #order_id = item.get("id")
+                order_code = item['response']['orderCode']
                 created_at = item.get("createdAt", datetime.now().isoformat())
-                filename = f"order_{order_id}_{created_at}.json"
+                filename = f"order_{order_code}_{created_at}.json"
                 out_path = out_dir / filename
 
                 with open(out_path, "w", encoding="utf-8") as f:
                     json.dump(item, f, indent=2, ensure_ascii=False)
 
-                print(f"Orderine salvato in {out_path.name} (OrderId: {order_id})")
+                print(f"Orderine salvato in {out_path.name}")
                 saved_files.append(str(out_path.resolve()))
 
             except Exception as e:
@@ -376,3 +268,29 @@ class Skyfi:
             delivery_params=None
         )
         return self.save_order_response(response_data)
+
+
+    def get_order_status(self, order_id: str):
+        try:
+            url = f"{self.base_url}/orders/{order_id}"
+            response = httpx.get(url, headers=self._auth_headers(), timeout=15.0)
+            response.raise_for_status()
+            data = response.json()
+
+            status = data.get("status")
+            download_url = data.get("downloadImageUrl")
+            payload_url = data.get("downloadPayloadUrl")
+
+            print(f"Order: {order_id} - Status: {status}")
+            if download_url:
+                print(f"Image ready: {download_url}")
+            if payload_url:
+                print(f"Payload: {payload_url}")
+
+            return data
+
+        except httpx.HTTPStatusError as e:
+            print(f"Errore HTTP: {e.response.status_code} - {e.response.text}")
+        except Exception as e:
+            print(f"Errore generale: {e}")
+

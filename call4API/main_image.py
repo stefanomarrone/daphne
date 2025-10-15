@@ -1,5 +1,7 @@
 import logging
 import httpx
+from call4API.catalog.polygon_catalog import polygon_catalog
+from call4API.catalog.coordinates_catalog import coordinates_catalog
 from call4API.Image.GeeAPI import GeeAPI
 from dotenv import load_dotenv
 import sys, os
@@ -11,10 +13,11 @@ from call4API.Image.skyfi import Skyfi
 def skyfi(conf: Configuration):
     sky = Skyfi(conf)
     sky.get_current_user()
-    #catalog_response = sky.get_catalog()
-    #sky.save_catalog_gallery(catalog_response['archives'])
-    order_json_path = "skyfiJSON/skyfi_selected_20251014_182449.json"
-    sky.order_from_json(order_json_path)
+    sky.catalog_gallery()
+    #order_json_path = "skyfiJSON/skyfi_selected_20251015_181023.json"
+    #sky.order_from_json(order_json_path)
+    #sky.get_order_status("27fc216b-822c-4b81-ae13-5c4e4544d8c8")
+
 functions = {
     'skyfi': skyfi,
 }

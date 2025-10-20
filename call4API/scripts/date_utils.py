@@ -77,3 +77,9 @@ def _fmt_date(s):
         return date_to_iso(s.replace("Z","+00:00")).strftime("%Y-%m-%d %H:%M")
     except Exception:
         return s or "-"
+
+
+def from_iso_format(s):
+    dt = datetime.fromisoformat(s)
+    formatted = dt.strftime("%Y-%m-%d %H:%M")
+    return formatted

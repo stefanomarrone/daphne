@@ -1,19 +1,16 @@
 import json
 import os
-from datetime import datetime
 from typing import List, Dict, Any
 import httpx
 from dotenv import load_dotenv
 import webbrowser
 from pathlib import Path
-from html import escape
-
+from datetime import datetime
 from call4API.catalog.coordinates_catalog import coordinates_catalog
 from call4API.catalog.polygon_catalog import polygon_catalog
-from call4API.scripts.date_utils import date_to_iso, _fmt_date
+from call4API.scripts.date_utils import date_to_iso, _fmt_date, from_iso_format
 from call4API.scripts.utils import _pct, extract_feature_from_configuration
 from call4API.template.skyfi_template_html import skyfi_template_html
-
 
 class Skyfi:
     def __init__(self, conf):
@@ -21,18 +18,27 @@ class Skyfi:
         self.api_key = os.environ.get("API_KEY_SKYFI")
         self.base_url = "https://app.skyfi.com/platform-api"
         self.base_url_auth = "https://app.skyfi.com/platform-api/auth/"
+        self.catalog_title = "SkyFi Catalog"
+        self.order_request_file = "order_request.txt"
+
         lat, lon, fromdate, todate, _, countryname = extract_feature_from_configuration(conf)
         self.lat = lat
         self.lon = lon
         self.countryname = self._countryname()
         self.aoi = polygon_catalog().create_polygon(self.lat, self.lon)
-        self.resolutions = [p.upper() for p in conf.get("resolutions")]
-        self.productTypes = [p.upper() for p in conf.get("productTypes")]
-        self.providers = [p.upper() for p in conf.get("providers")]
-        self.openData = self.openData = str(conf.get("openData")).strip().lower() == "true"
+        self.resolutions = [p.upper() for p in (conf.get("resolutions") or [])]
+        self.productTypes = [p.upper() for p in (conf.get("productTypes") or [])]
+        self.providers = [p.upper() for p in (conf.get("providers") or [])]
+        self.openData = str(conf.get("openData")).strip().lower() == "true"
         self.fromdate = date_to_iso(fromdate)
         self.todate = date_to_iso(todate)
         self.maxCloudCoveragePercent = conf.get("maxCloudCoveragePercent")
+
+        self.catalog_folder = Path(conf.get("catalogfolder"))
+        self.order_request_folder =  Path(conf.get("orderrequestfolder"))
+        self.order_response_folder = Path(conf.get("orderresponsefolder"))
+        self.download_image_folder = Path(conf.get("downloadimagefolder"))
+        self.deliverable_type = conf.get("deliverabletype")
 
     def _countryname(self):
         if self.lat != None and self.lon != None:
@@ -73,13 +79,13 @@ class Skyfi:
         webbrowser.open(url)
 
     def get_openapi_spec(self):
-        # prova a recuperare lo spec OpenAPI.
         r = httpx.get(f"{self.base_url}/openapi.json", headers=self._auth_headers(), follow_redirects=True)
         r.raise_for_status()
-        response = r.json()
-        return print(response["info"]["title"], response["openapi"])
+        info = r.json()
+        print(info["info"]["title"], info["openapi"])
+        return info
 
-    def get_current_user(self, verbose: bool = True):
+    def get_current_user(self):
         try:
             response = httpx.get(
                 f"{self.base_url_auth}/whoami",
@@ -98,10 +104,9 @@ class Skyfi:
                 "usage_formatted": f"{usage_eur:.2f} €"
             }
 
-            if verbose:
-                print(f"Email: {user_info['email']}")
-                print(f"Budget: {user_info['budget_formatted']}")
-                print(f"Utilizzato: {user_info['usage_formatted']}")
+            print(f"Email: {user_info['email']}")
+            print(f"Budget: {user_info['budget_formatted']}")
+            print(f"Utilizzato: {user_info['usage_formatted']}")
 
             return user_info
 
@@ -141,65 +146,68 @@ class Skyfi:
         except httpx.RequestError as e:
             return {"status": "error", "message": f"Errore: {e}"}
 
-    def catalog_gallery(self, title="SkyFi Catalog"):
-        # Genera una galleria HTML (static) con selezione multipla e azioni (copia/scarica)
+
+    def catalog_gallery(self):
         catalog_response = self.get_catalog()
         archives = catalog_response['archives']
-
-        from datetime import datetime
-        stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 
         cards = []
         for a in archives:
             thumb = (a.get("thumbnailUrls") or {}).get("300x300")
             archiveId = a.get("archiveId", "-")
             provider = a.get("provider", "-")
-            date = _fmt_date(a.get("captureTimestamp", "-"))
+            date = from_iso_format(_fmt_date(a.get("captureTimestamp", "-")))
             cloud = _pct(a.get("cloudCoveragePercent", "-"))
             res = a.get("resolution", "-")
-            gsd = a.get("gsd", "-")
-            priceFullScene = a.get("priceFullScene", "-")
+            priceFullScene = str(a.get("priceFullScene", "-"))
 
-            img_html = (
-                f'<a href="{escape(thumb)}" target="_blank"><img src="{escape(thumb)}" '
-                f'alt="thumb" style="width:150px;height:150px;object-fit:cover;border-radius:12px;"></a>'
-                if thumb else
-                "<div style='width:150px;height:150px;background:#eee;border-radius:12px;"
-                "display:flex;align-items:center;justify-content:center;'>no thumb</div>"
+            t = skyfi_template_html.card_block(
+                thumb=thumb, archiveId=archiveId, provider=provider, date=date,
+                cloud=cloud, res=res, priceFullScene=priceFullScene
             )
+            cards.append(t)
+        stamp = datetime.now().strftime("%Y%m%d")
+        html_template = skyfi_template_html(title=self.catalog_title, cards=cards, stamp=stamp)
+        html = html_template.get_template()
 
-            cards.append(f"""
-            <div class="card">
-              <label class="chk">
-                <input type="checkbox" class="sel" value="{escape(archiveId)}">
-                <span></span>
-              </label>
-              <div class="thumb">{img_html}</div>
-              <div class="meta">
-                <div><b>ID</b>: <code>{escape(archiveId)}</code></div>
-                <div><b>Prov</b>: {escape(str(provider))}</div>
-                <div><b>Date</b>: {escape(date)}</div>
-                <div><b>Cloud</b>: {escape(cloud)}</div>
-                <div><b>Res</b>: {escape(str(res))}</div>
-                <div><b>GSD</b>: {escape(str(gsd))}</div>
-                <div><b>Image Price</b>: {escape(str(priceFullScene))}</div>
-              </div>
-            </div>""")
-
-        html = skyfi_template_html(title, cards, stamp).get_template()
-        out_dir = Path("skyfiCatalog")
+        out_dir = self.catalog_folder
         out_dir.mkdir(parents=True, exist_ok=True)
-        out_path = f"{out_dir}/catalog_gallery_{self.countryname}_{self.fromdate}_{self.todate}_openData{self.openData}.html"
-        Path(out_path).write_text(html, encoding="utf-8")
-        return print("Catalogo salvato in:" + str(Path(out_path).resolve()))
+        out_path = Path(f"{out_dir}/catalog_{self.countryname}_{self.fromdate}_{self.todate}_openData{self.openData}_{stamp}.html")
+        out_path.write_text(html, encoding="utf-8")
+        return print("Catalogo salvato in:" + str(out_path.resolve()))
+
+    def merge_order_requests(self, downloaded_txt_path: str):
+        """
+        Unisce gli ID presenti in un file TXT (uno per riga) dentro order_request_folder/target_name,
+        evitando duplicati. Ritorna il percorso del file aggiornato e le statistiche.
+        """
+        src = Path(downloaded_txt_path).expanduser().resolve()
+        if not src.exists():
+            raise FileNotFoundError(f"File non trovato: {src}")
+
+        dst_dir = self.order_request_folder
+        dst_dir.mkdir(parents=True, exist_ok=True)
+        dst = dst_dir / self.order_request_file
+
+        existing = set()
+        if dst.exists():
+            existing = {line.strip() for line in dst.read_text(encoding="utf-8").splitlines() if line.strip()}
+
+        new_ids = [line.strip() for line in src.read_text(encoding="utf-8").splitlines() if line.strip()]
+        merged = list(existing) + [i for i in new_ids if i not in existing]
+        dst.write_text("\n".join(merged) + ("\n" if merged else ""), encoding="utf-8")
+
+        added = len(merged) - len(existing)
+        skipped = len(new_ids) - added
+        print(f"Unione completata → {dst}  (+{added} nuovi, {skipped} duplicati ignorati)")
+        return str(dst), {"added": added, "skipped": skipped, "total": len(merged)}
 
     def save_order_response(self, response_data):
-        #Salva la/e response JSON degli ordini nella cartella 'skyfiJSON_response'.
-        out_dir = Path("skyfiJSON_response")
+        #Salva la/e response JSON degli ordini nella cartella 'order_response_folder'.
+        out_dir = self.order_response_folder
         out_dir.mkdir(parents=True, exist_ok=True)
 
         saved_files = []
-
         # Se è una singola risposta, la metto in lista
         if isinstance(response_data, dict):
             response_data = [response_data]
@@ -207,16 +215,17 @@ class Skyfi:
         for item in response_data:
             filename = ""
             try:
-                #order_id = item.get("id")
+                #order_id = item['response']['id']
                 order_code = item['response']['orderCode']
-                created_at = item.get("createdAt", datetime.now().isoformat())
-                filename = f"order_{order_code}_{created_at}.json"
+                created_at = item.get("createdAt", datetime.now().strftime("%Y%m%d"))
+                captureTimestamp = (item['response']['archive']['captureTimestamp'], datetime.now().strftime("%Y%m%d"))
+                filename = f"order_ID_{order_code}_{created_at}.json"
                 out_path = out_dir / filename
 
                 with open(out_path, "w", encoding="utf-8") as f:
                     json.dump(item, f, indent=2, ensure_ascii=False)
 
-                print(f"Orderine salvato in {out_path.name}")
+                print(f"Ordine salvato in {out_path.name}")
                 saved_files.append(str(out_path.resolve()))
 
             except Exception as e:
@@ -255,12 +264,15 @@ class Skyfi:
         return results
 
 
-    def order_from_json(self, path_json):
-        with open(path_json, "r", encoding="utf-8") as f:
-            data = json.load(f)
-        archive_ids = data.get("archiveIds", [])
+    def order_from_txt(self):
+        path_txt = self.order_request_folder / self.order_request_file
+        if not path_txt.exists():
+            print("File order_request.txt non trovato.")
+            return []
+        with open(path_txt, "r", encoding="utf-8") as f:
+            archive_ids = [line.strip() for line in f if line.strip()]
         if not archive_ids:
-            print("Nessun archiveId nel file JSON.")
+            print("Nessun archiveId nel file order_request.txt.")
             return []
         response_data = self.place_orders(
             archive_ids=archive_ids,
@@ -273,15 +285,16 @@ class Skyfi:
     def get_order_status(self, order_id: str):
         try:
             url = f"{self.base_url}/orders/{order_id}"
-            response = httpx.get(url, headers=self._auth_headers(), timeout=15.0)
+            response = httpx.get(url, headers=self._auth_headers(), timeout=30.0)
             response.raise_for_status()
             data = response.json()
 
             status = data.get("status")
+            created_at = data.get("createdAt", datetime.now().strftime("%Y%m%d"))
             download_url = data.get("downloadImageUrl")
             payload_url = data.get("downloadPayloadUrl")
 
-            print(f"Order: {order_id} - Status: {status}")
+            print(f"Order: {order_id} - Created at: {created_at} - Status: {status}")
             if download_url:
                 print(f"Image ready: {download_url}")
             if payload_url:
@@ -293,4 +306,42 @@ class Skyfi:
             print(f"Errore HTTP: {e.response.status_code} - {e.response.text}")
         except Exception as e:
             print(f"Errore generale: {e}")
+
+    def get_user_orders(self):
+        try:
+            url = f"{self.base_url}/orders"
+            response = httpx.get(url, headers=self._auth_headers(), timeout=30.0)
+            response.raise_for_status()
+            orders = response.json()
+
+            for order in orders["orders"]:
+                order_id = order.get("orderId")
+                created_at = order.get("createdAt", datetime.now().strftime("%Y%m%d"))
+                status = order.get("status")
+                print(f"Order: {order_id} - Created at: {created_at} - Status: {status}")
+            return orders
+
+        except httpx.HTTPStatusError as e:
+            print(f"Errore HTTP: {e.response.status_code} - {e.response.text}")
+        except Exception as e:
+            print(f"Errore generale: {e}")
+
+    def download_deliverable(self, order_id) -> str:
+        url = f"{self.base_url}/orders/{order_id}/image"
+        out_dir = self.download_image_folder
+        out_dir.mkdir(parents=True, exist_ok=True)
+
+        # seguiamo i redirect e salviamo lo stream
+        with httpx.stream("GET", url, headers=self._auth_headers(), follow_redirects=True, timeout=60.0) as r:
+            r.raise_for_status()
+            # prova a ricavare un nome sensato
+            fname = f"{self.countryname}_{self.deliverable_type}.png"
+            out_path = out_dir / fname
+            with open(out_path, "wb") as f:
+                for chunk in r.iter_bytes():
+                    f.write(chunk)
+
+        print(f"Scaricato: {out_path}")
+        return str(out_path)
+
 

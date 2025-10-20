@@ -1,4 +1,6 @@
 import logging
+import webbrowser
+
 import httpx
 from call4API.catalog.polygon_catalog import polygon_catalog
 from call4API.catalog.coordinates_catalog import coordinates_catalog
@@ -9,17 +11,41 @@ from src.configuration import Configuration
 from call4API.Image.skyfi import Skyfi
 
 
-
 def skyfi(conf: Configuration):
     sky = Skyfi(conf)
     sky.get_current_user()
+    #sky.catalog_gallery()
+    #sky.merge_order_requests("/Users/stella/programming/repo4pat/skyfi_document/order_request/order_request_20251020.txt")
+    #sky.order_from_txt()
+    #sky.get_order_status("2bcf71c0-2723-467c-80ec-9129c08fc857")
+
+
+def catalog(conf: Configuration):
+    sky = Skyfi(conf)
     sky.catalog_gallery()
-    #order_json_path = "skyfiJSON/skyfi_selected_20251015_181023.json"
-    #sky.order_from_json(order_json_path)
-    #sky.get_order_status("27fc216b-822c-4b81-ae13-5c4e4544d8c8")
+
+def order_request(conf: Configuration):
+    sky = Skyfi(conf)
+    sky.merge_order_requests("/Users/stella/programming/repo4pat/skyfi_document/order_request/order_request_20251020.txt")
+    sky.order_from_txt()
+
+def order_status(conf: Configuration):
+    sky = Skyfi(conf)
+    #sky.get_user_orders()
+    orderId = "2bcf71c0-2723-467c-80ec-9129c08fc857"
+    #sky.get_order_status(orderId)
+
+def download(conf: Configuration):
+    sky = Skyfi(conf)
+    orderId = "2bcf71c0-2723-467c-80ec-9129c08fc857"
+    sky.download_deliverable(orderId)
 
 functions = {
     'skyfi': skyfi,
+    'catalog': catalog,
+    'order_request': order_request,
+    'order_status': order_status,
+    'download': download
 }
 
 if __name__ == '__main__':

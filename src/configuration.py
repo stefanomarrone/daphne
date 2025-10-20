@@ -115,6 +115,17 @@ class Configuration(metaclass=Singleton):
         self.put('openData', temp)
         temp = reader['image'].get('maxCloudCoveragePercent', 100)
         self.put('maxCloudCoveragePercent', int(temp))
+        #SKYFI
+        temp = reader['skyfi'].get('catalogfolder', None)
+        self.put('catalogfolder', temp)
+        temp = reader['skyfi'].get('orderrequestfolder', None)
+        self.put('orderrequestfolder', temp)
+        temp = reader['skyfi'].get('orderresponsefolder', None)
+        self.put('orderresponsefolder', temp)
+        temp = reader['skyfi'].get('downloadimagefolder', None)
+        self.put('downloadimagefolder', temp)
+        temp = reader['skyfi'].get('deliverabletype', 'image')
+        self.put('deliverabletype', str(temp))
 
 
         #DATA

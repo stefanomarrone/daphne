@@ -1,24 +1,15 @@
-import logging
-import webbrowser
-
-import httpx
+from call4API.Image.skyfiOrder import Order
 from call4API.catalog.polygon_catalog import polygon_catalog
 from call4API.catalog.coordinates_catalog import coordinates_catalog
 from call4API.Image.GeeAPI import GeeAPI
-from dotenv import load_dotenv
-import sys, os
+import sys
 from src.configuration import Configuration
-from call4API.Image.skyfi import Skyfi
+from call4API.Image.skyfiApi import Skyfi
 
 
 def skyfi(conf: Configuration):
     sky = Skyfi(conf)
     sky.get_current_user()
-    #sky.catalog_gallery()
-    #sky.merge_order_requests("/Users/stella/programming/repo4pat/skyfi_document/order_request/order_request_20251020.txt")
-    #sky.order_from_txt()
-    #sky.get_order_status("2bcf71c0-2723-467c-80ec-9129c08fc857")
-
 
 def catalog(conf: Configuration):
     sky = Skyfi(conf)
@@ -26,8 +17,13 @@ def catalog(conf: Configuration):
 
 def order_request(conf: Configuration):
     sky = Skyfi(conf)
-    sky.merge_order_requests("/Users/stella/programming/repo4pat/skyfi_document/order_request/order_request_20251020.txt")
-    sky.order_from_txt()
+    txt_path = "/Users/stella/programming/repo4pat/skyfi_document/order_request/order_request_20251020.txt"
+    order = Order(conf)
+    order.order_txt_to_csv(txt_path)
+    archive_ids = order.get_achiveId_toplace()
+    response_data = sky.place_orders(archive_ids=archive_ids, delivery_driver="NONE",delivery_params=None)
+    order.save_order_response(response_data)
+
 
 def order_status(conf: Configuration):
     sky = Skyfi(conf)

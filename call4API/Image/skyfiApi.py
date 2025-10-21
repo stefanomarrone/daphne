@@ -1,4 +1,3 @@
-import json
 import os
 from typing import List, Dict, Any
 import httpx
@@ -176,62 +175,6 @@ class Skyfi:
         out_path.write_text(html, encoding="utf-8")
         return print("Catalogo salvato in:" + str(out_path.resolve()))
 
-    def merge_order_requests(self, downloaded_txt_path: str):
-        """
-        Unisce gli ID presenti in un file TXT (uno per riga) dentro order_request_folder/target_name,
-        evitando duplicati. Ritorna il percorso del file aggiornato e le statistiche.
-        """
-        src = Path(downloaded_txt_path).expanduser().resolve()
-        if not src.exists():
-            raise FileNotFoundError(f"File non trovato: {src}")
-
-        dst_dir = self.order_request_folder
-        dst_dir.mkdir(parents=True, exist_ok=True)
-        dst = dst_dir / self.order_request_file
-
-        existing = set()
-        if dst.exists():
-            existing = {line.strip() for line in dst.read_text(encoding="utf-8").splitlines() if line.strip()}
-
-        new_ids = [line.strip() for line in src.read_text(encoding="utf-8").splitlines() if line.strip()]
-        merged = list(existing) + [i for i in new_ids if i not in existing]
-        dst.write_text("\n".join(merged) + ("\n" if merged else ""), encoding="utf-8")
-
-        added = len(merged) - len(existing)
-        skipped = len(new_ids) - added
-        print(f"Unione completata → {dst}  (+{added} nuovi, {skipped} duplicati ignorati)")
-        return str(dst), {"added": added, "skipped": skipped, "total": len(merged)}
-
-    def save_order_response(self, response_data):
-        #Salva la/e response JSON degli ordini nella cartella 'order_response_folder'.
-        out_dir = self.order_response_folder
-        out_dir.mkdir(parents=True, exist_ok=True)
-
-        saved_files = []
-        # Se è una singola risposta, la metto in lista
-        if isinstance(response_data, dict):
-            response_data = [response_data]
-
-        for item in response_data:
-            filename = ""
-            try:
-                #order_id = item['response']['id']
-                order_code = item['response']['orderCode']
-                created_at = item.get("createdAt", datetime.now().strftime("%Y%m%d"))
-                captureTimestamp = (item['response']['archive']['captureTimestamp'], datetime.now().strftime("%Y%m%d"))
-                filename = f"order_ID_{order_code}_{created_at}.json"
-                out_path = out_dir / filename
-
-                with open(out_path, "w", encoding="utf-8") as f:
-                    json.dump(item, f, indent=2, ensure_ascii=False)
-
-                print(f"Ordine salvato in {out_path.name}")
-                saved_files.append(str(out_path.resolve()))
-
-            except Exception as e:
-                print(f"Errore nel salvataggio ordine {filename}: {e}")
-
-        return saved_files
 
     def place_orders(self, delivery_params,
                      archive_ids: List[str],
@@ -262,24 +205,6 @@ class Skyfi:
             except httpx.RequestError as e:
                 results.append({"archiveId": aid, "status": "error", "message": f"Errore rete: {e}"})
         return results
-
-
-    def order_from_txt(self):
-        path_txt = self.order_request_folder / self.order_request_file
-        if not path_txt.exists():
-            print("File order_request.txt non trovato.")
-            return []
-        with open(path_txt, "r", encoding="utf-8") as f:
-            archive_ids = [line.strip() for line in f if line.strip()]
-        if not archive_ids:
-            print("Nessun archiveId nel file order_request.txt.")
-            return []
-        response_data = self.place_orders(
-            archive_ids=archive_ids,
-            delivery_driver="NONE",
-            delivery_params=None
-        )
-        return self.save_order_response(response_data)
 
 
     def get_order_status(self, order_id: str):
@@ -343,5 +268,3 @@ class Skyfi:
 
         print(f"Scaricato: {out_path}")
         return str(out_path)
-
-

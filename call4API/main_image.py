@@ -12,7 +12,7 @@ def skyfi(conf: Configuration):
     print("----User Info----")
     sky.get_current_user()
     print("----List Orders----")
-    sky.get_user_orders()
+    sky.get_user_orders(info_print=True)
 
 def catalog(conf: Configuration):
     sky = Skyfi(conf)
@@ -31,7 +31,17 @@ def order_request(conf: Configuration):
 def order_status(conf: Configuration):
     sky = Skyfi(conf)
     orderId = "2bcf71c0-2723-467c-80ec-9129c08fc857"
-    sky.get_order_status(orderId)
+    sky.get_order_status(orderId, print_info=True)
+
+def update_orders(conf: Configuration):
+    sky = Skyfi(conf)
+    order = Order(conf)
+    try:
+        orders = sky.get_user_orders()
+        order.update_order_response(orders["orders"])
+    except Exception as e_detail:
+        print(f"Impossibile aggiornare gli ordini: {e_detail}")
+
 
 def download(conf: Configuration):
     sky = Skyfi(conf)
@@ -44,6 +54,7 @@ functions = {
     'catalog': catalog,
     'order_request': order_request,
     'order_status': order_status,
+    'update_orders': update_orders,
     'download': download
 }
 

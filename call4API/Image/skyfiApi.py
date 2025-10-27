@@ -214,7 +214,7 @@ class Skyfi:
         return results
 
 
-    def get_order_status(self, order_id: str):
+    def get_order_status(self, order_id: str, print_info=False):
         try:
             url = f"{self.base_url}/orders/{order_id}"
             response = httpx.get(url, headers=self._auth_headers(), timeout=30.0)
@@ -222,15 +222,16 @@ class Skyfi:
             data = response.json()
 
             status = data.get("status")
-            created_at = data.get("createdAt", datetime.now().strftime("%Y%m%d"))
+            created_at = replace_str_with_date(data.get("createdAt"))
             download_url = data.get("downloadImageUrl")
             payload_url = data.get("downloadPayloadUrl")
 
-            print(f"Order: {order_id} - Created at: {created_at} - Status: {status}")
-            if download_url:
-                print(f"Image ready: {download_url}")
-            if payload_url:
-                print(f"Payload: {payload_url}")
+            if print_info:
+                print(f"Order: {order_id} - Created at: {created_at} - Status: {status}")
+                if download_url:
+                    print(f"Image ready: {download_url}")
+                if payload_url:
+                    print(f"Payload: {payload_url}")
 
             return data
 
@@ -239,7 +240,7 @@ class Skyfi:
         except Exception as e:
             print(f"Errore generale: {e}")
 
-    def get_user_orders(self):
+    def get_user_orders(self, info_print=False):
         try:
             url = f"{self.base_url}/orders"
             response = httpx.get(url, headers=self._auth_headers(), timeout=30.0)
@@ -250,7 +251,8 @@ class Skyfi:
                 order_id = order.get("orderId")
                 created_at = replace_str_with_date(order.get("createdAt"))
                 status = order.get("status")
-                print(f"Order: {order_id} - Created at: {created_at} - Status: {status}")
+                if info_print:
+                    print(f"Order: {order_id} - Created at: {created_at} - Status: {status}")
             return orders
 
         except httpx.HTTPStatusError as e:

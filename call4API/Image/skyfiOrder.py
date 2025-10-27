@@ -2,6 +2,10 @@ import json
 from datetime import datetime
 from pathlib import Path
 import csv
+
+from call4API.scripts.date_utils import replace_str_with_date
+
+
 class Order:
     def __init__(self, conf):
         self.catalog_folder = Path(conf.get("catalogfolder"))
@@ -124,8 +128,8 @@ class Order:
             try:
                 #order_id = item['response']['id']
                 order_code = item['response']['orderCode']
-                created_at = item.get("createdAt", datetime.now().strftime("%Y%m%d"))
-                captureTimestamp = (item['response']['archive']['captureTimestamp'], datetime.now().strftime("%Y%m%d"))
+                created_at = item.get("createdAt")
+                captureTimestamp = (item['response']['archive']['captureTimestamp'])
                 filename = f"order_ID_{order_code}_{created_at}.json"
                 out_path = out_dir / filename
 
@@ -140,6 +144,130 @@ class Order:
         self.update_orders_csv_from_responses(response_data, saved_files)
 
         return saved_files
+
+    def update_order_response(self, orders_list):
+        out_dir = self.order_response_folder
+        out_dir.mkdir(parents=True, exist_ok=True)
+
+        saved_files = []
+        for item in orders_list:
+            filename = ""
+            try:
+                order_id = item.get("id")
+                order_code = item.get("orderCode")
+                created_at = replace_str_with_date(item.get("createdAt"))
+                filename = f"order_ID_{order_id}_{created_at}.json"
+                out_path = out_dir / filename
+
+                with open(out_path, "w", encoding="utf-8") as f:
+                    json.dump(item, f, indent=2, ensure_ascii=False)
+
+                print(f"Ordine aggiornato in {out_path.name}")
+                saved_files.append(str(out_path.resolve()))
+
+            except Exception as e:
+                print(f"Errore nel'aggiornamento ordine {filename}: {e}")
+        self.update_orders_csv_from_orders_list(orders_list, saved_files)
+
+        return saved_files
+
+    def update_orders_csv_from_orders_list(self, orders_list, saved_files):
+        global i
+        if orders_list is None:
+            print("Nessun ordine da aggiornare (orders_list=None).")
+            return {"updated": 0, "inserted": 0, "errors": 0}
+
+        csv_path = self.order_request_folder / self.csv_filename
+        if not csv_path.exists():
+            # Se il CSV non esiste, crealo con header standard
+            fieldnames = ["orderId", "archiveId", "order_name", "status", "isImageDownloaded"]
+            with open(csv_path, "w", encoding="utf-8", newline="") as f:
+                w = csv.DictWriter(f, fieldnames=fieldnames)
+                w.writeheader()
+
+        # Carica CSV
+        with open(csv_path, "r", encoding="utf-8", newline="") as f:
+            reader = csv.DictReader(f)
+            rows = list(reader)
+            fieldnames = reader.fieldnames or []
+
+        idx_by_order = {}
+        idx_by_archive = {}
+        for i, r in enumerate(rows):
+            r.setdefault("archiveId", "")
+            r.setdefault("order_name", "")
+            r.setdefault("status", "")
+            r.setdefault("isImageDownloaded", "false")
+            r.setdefault("orderId", "")
+
+            if r["orderId"]:
+                idx_by_order[r["orderId"]] = i
+            if r["archiveId"]:
+                idx_by_archive[r["archiveId"]] = i
+
+        updated = 0
+        inserted = 0
+        errors = 0
+
+        for i, item in enumerate(orders_list):
+            try:
+                order_id = item.get("orderId") or item.get("id", "")
+                status = item.get("status", "") or ""
+                arch = item.get("archive") or {}
+                archive_id = arch.get("archiveId") or item.get("archiveId", "")
+
+                order_filename = ""
+                if i < len(saved_files) and saved_files[i]:
+                    order_filename = Path(saved_files[i]).name
+
+
+                # 1) match per orderId
+                if order_id and order_id in idx_by_order:
+                    row = rows[idx_by_order[order_id]]
+                    row["status"] = status or row.get("status", "")
+                    if archive_id and not row.get("archiveId"):
+                        row["archiveId"] = archive_id
+                    updated += 1
+                    continue
+
+                # 2) fallback: match per archiveId
+                if archive_id and archive_id in idx_by_archive:
+                    row = rows[idx_by_archive[archive_id]]
+                    row["status"] = status or row.get("status", "")
+                    if order_id and not row.get("orderId"):
+                        row["orderId"] = order_id
+                    updated += 1
+                    continue
+
+                # 3) altrimenti, aggiungi nuova riga
+                new_row = {
+                    "archiveId": archive_id,
+                    "order_name": order_filename,
+                    "status": status,
+                    "isImageDownloaded": "false",
+                    "orderId": order_id,
+                }
+                rows.append(new_row)
+                # aggiorna indici
+                if order_id:
+                    idx_by_order[order_id] = len(rows) - 1
+                if archive_id:
+                    idx_by_archive[archive_id] = len(rows) - 1
+                inserted += 1
+
+            except Exception as e:
+                print(f"[WARN] Errore processando ordine: {e}")
+                errors += 1
+
+        # Riscrivi CSV
+        with open(csv_path, "w", encoding="utf-8", newline="") as f:
+            w = csv.DictWriter(f, fieldnames=fieldnames)
+            w.writeheader()
+            w.writerows(rows)
+
+        print(f"CSV aggiornato: {csv_path} (updated={updated}, inserted={inserted}, errors={errors})")
+        return {"updated": updated, "inserted": inserted, "errors": errors}
+
 
     def update_orders_csv_from_responses(self, response_data, saved_files):
         """
@@ -180,6 +308,7 @@ class Order:
             r.setdefault("order_name", "")
             r.setdefault("status", "")
             r.setdefault("isImageDownloaded", "false")
+            r.setdefault("id", "")
             if r["archiveId"]:
                 index[r["archiveId"]] = i
 
@@ -196,7 +325,7 @@ class Order:
 
             if item.get("status") == "ok":
                 api_resp = item.get("response", {}) or {}
-                # status dell'ordine restituito dall'API (es. CREATED/PROCESSING/...)
+                # status dell'ordine restituito dall'API (es. CREATED/PROCESSING/PROCESSING_COMPLETE)
                 api_status = api_resp.get("status", "") or "UNKNOWN"
 
                 # Filename del JSON salvato (se disponibile)
@@ -206,15 +335,15 @@ class Order:
 
                 row["order_name"] = order_filename
                 row["status"] = api_status
+                row["id"] = item["response"]["id"]
                 updated += 1
             else:
                 code = item.get("code")
                 row["status"] = f"ERROR{f'[{code}]' if code else ''}"
-                # order_name resta vuoto
                 errors += 1
 
         # Riscrivi CSV
-        fieldnames = ["archiveId", "order_name", "status", "isImageDownloaded"]
+        fieldnames = ["archiveId", "order_name", "status", "isImageDownloaded", "orderId"]
         with open(csv_path, "w", encoding="utf-8", newline="") as f:
             w = csv.DictWriter(f, fieldnames=fieldnames)
             w.writeheader()

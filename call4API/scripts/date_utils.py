@@ -91,6 +91,6 @@ def replace_str_with_date(s):
         return ""
     try:
         rep = s.replace("Z", "+00:00")
-        return datetime.fromisoformat(rep).strftime("%Y-%m-%d %H:%M")
+        return datetime.fromisoformat(rep).strftime("%Y-%m-%d_%H:%M")
     except ValueError:
         return s

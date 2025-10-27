@@ -16,13 +16,6 @@ class Order:
         """
         Legge gli archiveId da un file TXT (uno per riga) e li inserisce in un CSV
         con colonne: archiveId, order_name, status, isImageDownloaded.
-        - Evita duplicati (matching su archiveId).
-        - Crea il CSV con header se non esiste.
-        - Valori iniziali:
-            order_name = ""         (verrà riempito dopo aver creato/salvato l'ordine)
-            status = ""             (verrà letto dai JSON di risposta ordine)
-            isImageDownloaded = "false"  (verrà aggiornato dopo il download)
-        Ritorna: (percorso_csv, stats_dict)
         """
         # 1) Sorgente TXT
         if txt_path is None:
@@ -46,12 +39,11 @@ class Order:
 
         # 4) Carica eventuali righe esistenti dal CSV
         existing_rows = []
-        existing_index = {}  # archiveId -> row
+        existing_index = {}
         if csv_path.exists():
             with open(csv_path, "r", encoding="utf-8", newline="") as f:
                 reader = csv.DictReader(f)
                 for row in reader:
-                    # normalizza chiavi mancanti (per sicurezza)
                     row.setdefault("archiveId", "")
                     row.setdefault("order_name", "")
                     row.setdefault("status", "")

@@ -9,7 +9,10 @@ from call4API.Image.skyfiApi import Skyfi
 
 def skyfi(conf: Configuration):
     sky = Skyfi(conf)
+    print("----User Info----")
     sky.get_current_user()
+    print("----List Orders----")
+    sky.get_user_orders()
 
 def catalog(conf: Configuration):
     sky = Skyfi(conf)
@@ -27,14 +30,14 @@ def order_request(conf: Configuration):
 
 def order_status(conf: Configuration):
     sky = Skyfi(conf)
-    #sky.get_user_orders()
     orderId = "2bcf71c0-2723-467c-80ec-9129c08fc857"
-    #sky.get_order_status(orderId)
+    sky.get_order_status(orderId)
 
 def download(conf: Configuration):
     sky = Skyfi(conf)
     orderId = "2bcf71c0-2723-467c-80ec-9129c08fc857"
     sky.download_deliverable(orderId)
+    #todo update csv dopo aver scaricato l'immagine
 
 functions = {
     'skyfi': skyfi,

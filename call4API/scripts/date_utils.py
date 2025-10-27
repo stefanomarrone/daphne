@@ -83,3 +83,14 @@ def from_iso_format(s):
     dt = datetime.fromisoformat(s)
     formatted = dt.strftime("%Y-%m-%d %H:%M")
     return formatted
+
+def replace_str_with_date(s):
+    # Sostituisce il carattere 'Z' alla fine della stringa ISO, ignora secondi e microsecondi.
+    # da 2025-10-21T10:58:49.586649Z a 2025-10-21 10:58
+    if not s:
+        return ""
+    try:
+        rep = s.replace("Z", "+00:00")
+        return datetime.fromisoformat(rep).strftime("%Y-%m-%d %H:%M")
+    except ValueError:
+        return s

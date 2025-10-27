@@ -7,7 +7,7 @@ from pathlib import Path
 from datetime import datetime
 from call4API.catalog.coordinates_catalog import coordinates_catalog
 from call4API.catalog.polygon_catalog import polygon_catalog
-from call4API.scripts.date_utils import date_to_iso, _fmt_date, from_iso_format
+from call4API.scripts.date_utils import date_to_iso, _fmt_date, from_iso_format, replace_str_with_date
 from call4API.scripts.utils import _pct, extract_feature_from_configuration
 from call4API.template.skyfi_template_html import skyfi_template_html
 
@@ -248,7 +248,7 @@ class Skyfi:
 
             for order in orders["orders"]:
                 order_id = order.get("orderId")
-                created_at = order.get("createdAt", datetime.now().strftime("%Y%m%d"))
+                created_at = replace_str_with_date(order.get("createdAt"))
                 status = order.get("status")
                 print(f"Order: {order_id} - Created at: {created_at} - Status: {status}")
             return orders

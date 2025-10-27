@@ -98,12 +98,19 @@ class Skyfi:
             usage_eur = whoami.get("currentBudgetUsage", 0) / 100
 
             user_info = {
+                "id": whoami.get("id"),
+                "organizationId": whoami.get("organizationId"),
+                "isDemoAccount": whoami.get("isDemoAccount"),
+                "hasValidSharedCard": whoami.get("hasValidSharedCard"),
                 "email": whoami.get("email"),
+                "user_firstName": whoami.get("firstName"),
+                "user_lastName": whoami.get("lastName"),
                 "budget_formatted": f"{budget_eur:.2f} €",
                 "usage_formatted": f"{usage_eur:.2f} €"
             }
 
             print(f"Email: {user_info['email']}")
+            print(f"Current User: {user_info['user_firstName']} {user_info['user_lastName']}")
             print(f"Budget: {user_info['budget_formatted']}")
             print(f"Utilizzato: {user_info['usage_formatted']}")
 

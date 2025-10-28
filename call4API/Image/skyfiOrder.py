@@ -15,6 +15,7 @@ class Order:
         self.deliverable_type = conf.get("deliverabletype")
         self.order_request_file = "order_request.txt"
         self.csv_filename = "orders.csv"
+        self.status_for_download = "PROCESSING_COMPLETE"
 
     def order_txt_to_csv(self, txt_path: str = None):
         """
@@ -172,7 +173,6 @@ class Order:
         return saved_files
 
     def update_orders_csv_from_orders_list(self, orders_list, saved_files):
-        global i
         if orders_list is None:
             print("Nessun ordine da aggiornare (orders_list=None).")
             return {"updated": 0, "inserted": 0, "errors": 0}
@@ -197,7 +197,7 @@ class Order:
             r.setdefault("archiveId", "")
             r.setdefault("order_name", "")
             r.setdefault("status", "")
-            r.setdefault("isImageDownloaded", "false")
+            r.setdefault("isImageDownloaded", "False")
             r.setdefault("orderId", "")
 
             if r["orderId"]:
@@ -244,7 +244,7 @@ class Order:
                     "archiveId": archive_id,
                     "order_name": order_filename,
                     "status": status,
-                    "isImageDownloaded": "false",
+                    "isImageDownloaded": "False",
                     "orderId": order_id,
                 }
                 rows.append(new_row)
@@ -275,17 +275,7 @@ class Order:
         - Match su 'archiveId' (chiave nel CSV).
         - Compila 'order_name' con il filename JSON salvato.
         - Compila 'status' con lo stato ordine restituito dall'API (o 'ERROR[...]').
-
-        Parametri:
-            response_data: list[dict] | dict
-                Struttura prevista: {"archiveId": <str>, "status": "ok"|"error", "response": {...}}.
-            saved_files: list[str]
-                Elenco dei path JSON salvati nello stesso ordine di response_data.
-
-        Ritorna: dict con statistiche {"updated": X, "errors": Y}
         """
-
-        # Normalizza response_data a lista
         if isinstance(response_data, dict):
             response_data = [response_data]
         if saved_files is None:
@@ -307,7 +297,7 @@ class Order:
             r.setdefault("archiveId", "")
             r.setdefault("order_name", "")
             r.setdefault("status", "")
-            r.setdefault("isImageDownloaded", "false")
+            r.setdefault("isImageDownloaded", "False")
             r.setdefault("id", "")
             if r["archiveId"]:
                 index[r["archiveId"]] = i
@@ -352,3 +342,59 @@ class Order:
         print(f"CSV aggiornato: {csv_path} (updated={updated}, errors={errors})")
         return {"updated": updated, "errors": errors}
 
+    def update_orders_csv_after_download(self, orderIds_to_download):
+        csv_path = self.order_request_folder / self.csv_filename
+        if not csv_path.exists():
+            print(f"CSV non trovato: {csv_path}")
+
+        updated = 0
+        errors = 0
+        with open(csv_path, "r", encoding="utf-8", newline="") as f:
+            reader = csv.DictReader(f)
+            rows = list(reader)
+            fieldnames = reader.fieldnames or []
+
+        for r in rows:
+            if r.get("orderId") in orderIds_to_download:
+                r["isImageDownloaded"] = "True"
+                updated += 1
+            else:
+                if not r.get("isImageDownloaded"):
+                    r["isImageDownloaded"] = "False"
+
+        try:
+            with open(csv_path, "w", encoding="utf-8", newline="") as f:
+                writer = csv.DictWriter(f, fieldnames=fieldnames)
+                writer.writeheader()
+                writer.writerows(rows)
+
+        except Exception as e:
+            print(f"Errore nel salvataggio del CSV: {e}")
+            errors += 1
+
+        print(f"CSV aggiornato: {csv_path} (updated={updated}, errors={errors})")
+        return {"updated": updated, "errors": errors}
+
+    def get_order_to_download(self, all=True) -> list:
+        orderIds_to_download = []
+        csv_path = self.order_request_folder / self.csv_filename
+        if not csv_path.exists():
+            print(f"CSV non trovato: {csv_path}")
+
+        # Carica CSV
+        with open(csv_path, "r", encoding="utf-8", newline="") as f:
+            reader = csv.DictReader(f)
+            rows = list(reader)
+
+        for r in rows:
+            status = r.get("status", "")
+            isImageDownloaded = r.get("isImageDownloaded", "False").strip().lower() == "true"
+
+            if all:
+                if status==self.status_for_download:
+                    orderIds_to_download.append(r["orderId"])
+            else:
+                if status == self.status_for_download and not isImageDownloaded:
+                    orderIds_to_download.append(r["orderId"])
+
+        return orderIds_to_download

@@ -44,10 +44,18 @@ def update_orders(conf: Configuration):
 
 
 def download(conf: Configuration):
+    global orderId
     sky = Skyfi(conf)
-    orderId = "2bcf71c0-2723-467c-80ec-9129c08fc857"
-    sky.download_deliverable(orderId)
-    #todo update csv dopo aver scaricato l'immagine
+    order = Order(conf)
+    orderIds_to_download = order.get_order_to_download(all=True)
+    try:
+        for orderId in orderIds_to_download:
+            sky.download_deliverable(orderId)
+    except Exception as e_detail:
+        print(f"Impossibile scaricare ordine {orderId}: {e_detail}")
+
+    order.update_orders_csv_after_download(orderIds_to_download)
+
 
 functions = {
     'skyfi': skyfi,

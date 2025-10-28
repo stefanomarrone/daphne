@@ -261,15 +261,13 @@ class Skyfi:
             print(f"Errore generale: {e}")
 
     def download_deliverable(self, order_id) -> str:
-        url = f"{self.base_url}/orders/{order_id}/image"
+        url = f"{self.base_url}/orders/{order_id}/{self.deliverable_type}"
         out_dir = self.download_image_folder
         out_dir.mkdir(parents=True, exist_ok=True)
 
-        # seguiamo i redirect e salviamo lo stream
         with httpx.stream("GET", url, headers=self._auth_headers(), follow_redirects=True, timeout=60.0) as r:
             r.raise_for_status()
-            # prova a ricavare un nome sensato
-            fname = f"{self.countryname}_{self.deliverable_type}.png"
+            fname = f"{self.countryname}_orderID{order_id}_{self.deliverable_type}.png"
             out_path = out_dir / fname
             with open(out_path, "wb") as f:
                 for chunk in r.iter_bytes():

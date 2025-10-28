@@ -202,7 +202,7 @@ class Skyfi:
                     f"{self.base_url}/order-archive",
                     headers={**self._auth_headers(), "Content-Type": "application/json"},
                     json=payload,
-                    timeout=30.0,
+                    timeout=60.0,
                     follow_redirects=True
                 )
                 r.raise_for_status()
@@ -243,7 +243,7 @@ class Skyfi:
     def get_user_orders(self, info_print=False):
         try:
             url = f"{self.base_url}/orders"
-            response = httpx.get(url, headers=self._auth_headers(), timeout=30.0)
+            response = httpx.get(url, headers=self._auth_headers(), timeout=60.0)
             response.raise_for_status()
             orders = response.json()
 

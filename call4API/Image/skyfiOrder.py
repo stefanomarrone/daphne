@@ -49,6 +49,7 @@ class Order:
             with open(csv_path, "r", encoding="utf-8", newline="") as f:
                 reader = csv.DictReader(f)
                 for row in reader:
+                    row.setdefault("orderId", "")
                     row.setdefault("archiveId", "")
                     row.setdefault("order_name", "")
                     row.setdefault("status", "")
@@ -62,6 +63,7 @@ class Order:
         for aid in ids:
             if aid not in existing_index:
                 new_row = {
+                    "orderId": "",
                     "archiveId": aid,
                     "order_name": "",
                     "status": "",
@@ -75,7 +77,7 @@ class Order:
         total = len(existing_rows)
 
         # 6) Scrivi (o riscrivi) il CSV con header ordinato
-        fieldnames = ["archiveId", "order_name", "status", "isImageDownloaded"]
+        fieldnames = ["orderId", "archiveId", "order_name", "status", "isImageDownloaded"]
         with open(csv_path, "w", encoding="utf-8", newline="") as f:
             writer = csv.DictWriter(f, fieldnames=fieldnames)
             writer.writeheader()
@@ -127,11 +129,10 @@ class Order:
         for item in response_data:
             filename = ""
             try:
-                #order_id = item['response']['id']
+                order_id = item['response']['id']
                 order_code = item['response']['orderCode']
-                created_at = item.get("createdAt")
-                captureTimestamp = (item['response']['archive']['captureTimestamp'])
-                filename = f"order_ID_{order_code}_{created_at}.json"
+                created_at = replace_str_with_date(item['response']['createdAt'])
+                filename = f"order_ID_{order_id}_{created_at}.json"
                 out_path = out_dir / filename
 
                 with open(out_path, "w", encoding="utf-8") as f:
@@ -154,9 +155,8 @@ class Order:
         for item in orders_list:
             filename = ""
             try:
-                order_id = item.get("id")
-                order_code = item.get("orderCode")
-                created_at = replace_str_with_date(item.get("createdAt"))
+                order_id = item['id']
+                created_at = replace_str_with_date(item['createdAt'])
                 filename = f"order_ID_{order_id}_{created_at}.json"
                 out_path = out_dir / filename
 
@@ -294,11 +294,11 @@ class Order:
         # Indice archiveId -> idx riga
         index = {}
         for i, r in enumerate(rows):
+            r.setdefault("orderId", "")
             r.setdefault("archiveId", "")
             r.setdefault("order_name", "")
             r.setdefault("status", "")
             r.setdefault("isImageDownloaded", "False")
-            r.setdefault("id", "")
             if r["archiveId"]:
                 index[r["archiveId"]] = i
 
@@ -325,7 +325,7 @@ class Order:
 
                 row["order_name"] = order_filename
                 row["status"] = api_status
-                row["id"] = item["response"]["id"]
+                row["orderId"] = item["response"]["id"]
                 updated += 1
             else:
                 code = item.get("code")
@@ -333,7 +333,7 @@ class Order:
                 errors += 1
 
         # Riscrivi CSV
-        fieldnames = ["archiveId", "order_name", "status", "isImageDownloaded", "orderId"]
+        fieldnames = ["orderId", "archiveId", "order_name", "status", "isImageDownloaded"]
         with open(csv_path, "w", encoding="utf-8", newline="") as f:
             w = csv.DictWriter(f, fieldnames=fieldnames)
             w.writeheader()

@@ -20,7 +20,7 @@ def catalog(conf: Configuration):
 
 def order_request(conf: Configuration):
     sky = Skyfi(conf)
-    txt_path = "/Users/stella/programming/repo4pat/skyfi_document/order_request/order_request_20251020.txt"
+    txt_path = "/Users/stella/programming/repo4pat/skyfi_document/order_request/order_request.txt"
     order = Order(conf)
     order.order_txt_to_csv(txt_path)
     archive_ids = order.get_achiveId_toplace()
@@ -42,19 +42,21 @@ def update_orders(conf: Configuration):
     except Exception as e_detail:
         print(f"Impossibile aggiornare gli ordini: {e_detail}")
 
-
 def download(conf: Configuration):
     global orderId
     sky = Skyfi(conf)
     order = Order(conf)
-    orderIds_to_download = order.get_order_to_download(all=True)
-    try:
-        for orderId in orderIds_to_download:
-            sky.download_deliverable(orderId)
-    except Exception as e_detail:
-        print(f"Impossibile scaricare ordine {orderId}: {e_detail}")
+    orderIds_to_download = order.get_order_to_download(all=False)
+    if len(orderIds_to_download) == 0:
+        print(f"Non ci sono nuove immagini da scaricare!")
+    else:
+        try:
+            for orderId in orderIds_to_download:
+                sky.download_deliverable(orderId)
+        except Exception as e_detail:
+            print(f"Impossibile scaricare ordine {orderId}: {e_detail}")
 
-    order.update_orders_csv_after_download(orderIds_to_download)
+        order.update_orders_csv_after_download(orderIds_to_download)
 
 
 functions = {

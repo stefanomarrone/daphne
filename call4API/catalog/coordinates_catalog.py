@@ -59,5 +59,4 @@ class coordinates_catalog:
         for name, coords in self.coordinates_catalogs.items():
             if coords["lat"] == lat and coords["lon"] == lon:
                 return name
-            else:
-                return None
+        return None

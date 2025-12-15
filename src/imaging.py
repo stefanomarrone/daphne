@@ -1,15 +1,10 @@
 import os
-
-import ee
-import requests
-from IPython.display import display
 from dotenv import load_dotenv
 import logging
 import httpx
-from call4API.catalog.image_catalog import image_catalog
-from call4API.scripts.json_utils import create_folder, generate_zip_filepath
-from call4API.scripts.utils import get_region_string, change_date_format, define_coordinates
 
+from call4API.Image.GeeAPI import GeeAPI
+from call4API.catalog.image_catalog import image_catalog
 
 def extract_feature_from_configuration(features):
     board = features.board
@@ -20,24 +15,23 @@ def extract_feature_from_configuration(features):
     country_name = board['countryname']
     return lat, lon, start_date, end_date, country_name
 
-
-# Definizione della funzione per applicare i fattori di scala
-def apply_scale_factors(image):
-    # Applicazione dei fattori di scala per le bande ottiche
-    optical_bands = image.select(['SR_B.']).multiply(0.0000275).add(-0.2)
-
-    # Applicazione dei fattori di scala per le bande termiche
-    thermal_bands = image.select(['ST_B.*']).multiply(0.00341802).add(149)
-
-    # Aggiunta delle bande ottiche e termiche all'immagine
-    return image.addBands(optical_bands, None, True).addBands(thermal_bands, None, True)
-
-
 class ImageGrabber():
     def __init__(self, features):
         pass
         self.features = features
         self.catalog = image_catalog()
+
+class GeeImageGrubber:
+    def __init__(self, configuration, gee_api: GeeAPI):
+        self.configuration = configuration
+        self.gee = gee_api
+
+    def grub(self, configuration):
+        lat, lon, start_date, end_date, country_name \
+            = extract_feature_from_configuration(configuration)
+        image_catalog_name = "MODIS"
+        self.gee.download_satellite_image(country_name, lat, lon, start_date, end_date, image_catalog_name)
+
 
 class SkifyImageGrubber:
     def __init__(self, configuration):
@@ -64,6 +58,7 @@ class SkifyImageGrubber:
         image_catalog_name = "Skify"
         self.download_satellite_image(country_name, lat, lon, start_date, end_date, image_catalog_name)
 
+'''to clean 
 class Landsat09ImageGrubber:
     def __init__(self, configuration):
         self.configuration = configuration
@@ -177,12 +172,13 @@ class ModisImageGrubber:
             .filterDate(start_date, end_date) \
             .first()
 
+        visualization = {'region': ee_point, 'scale': 30, 'bands': ['sur_refl_b02', 'sur_refl_b01', 'sur_refl_b03']}
+
         # Get the first image in the collection
         image = ee.Image(collection)
 
         # Define the url
-        url = image.getDownloadUrl(
-            {'region': ee_point, 'scale': 30, 'bands': ['sur_refl_b02', 'sur_refl_b01', 'sur_refl_b03']})
+        url = image.getDownloadUrl(visualization)
 
         response = requests.get(url)
         with open(image_zip_filepath, 'wb') as f:
@@ -190,4 +186,5 @@ class ModisImageGrubber:
 
         # Print a message indicating that the export has started
         return print('Exporting image...')
+        '''
 

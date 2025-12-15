@@ -6,8 +6,7 @@ class FactoryGenerator():
     def generate(self, factoryname):
         map = {
             'OPWDataFactory': OPWDataFactory,
-            'ModisImageFactory': ModisImageFactory,
-            'Landsat09ImageFactory': Landsat09ImageFactory,
+            'GeeImageFactory': GeeImageFactory,
             'SkifyImageFactory': SkifyImageFactory
         }
         return map[factoryname]

@@ -4,6 +4,7 @@ import logging
 import httpx
 
 from call4API.Image.GeeAPI import GeeAPI
+from call4API.Image.skyfiApi import Skyfi
 from call4API.catalog.image_catalog import image_catalog
 
 def extract_feature_from_configuration(features):
@@ -36,27 +37,15 @@ class GeeImageGrubber:
 class SkifyImageGrubber:
     def __init__(self, configuration):
         self.configuration = configuration
-
-    def call_image_api(self):
-        load_dotenv()
-        api_key = os.environ.get("API_KEY_SKYFI")
-        headers = {"X-Skyfi-Api-Key": api_key}
-        ping_response = httpx.get("https://app.skyfi.com/platform-api/ping", headers=headers)
-        ping = ping_response.json()
-
-        logging.info(f"ping: {ping['message']}")
-
-        pass
-
-    def download_satellite_image(self, country_name, lat, lon, start_date, end_date, image_catalog_name="Skify"):
-        self.call_image_api()
-        pass
+        self.skify = Skyfi(configuration)
 
     def grub(self, configuration):
-        lat, lon, start_date, end_date, country_name \
-            = extract_feature_from_configuration(configuration)
-        image_catalog_name = "Skify"
-        self.download_satellite_image(country_name, lat, lon, start_date, end_date, image_catalog_name)
+        #self.skify.get_catalog
+        #self.skify.place_orders(primi 5 elementi di catalog)
+        #self.skyfi.get_order_status(dei 5 ordini) se lo stato è PROCESSING_COMPLETE allora
+        #self.skyfi.download_deliverable(id)
+        pass
+
 
 '''to clean 
 class Landsat09ImageGrubber:

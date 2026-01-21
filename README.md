@@ -9,11 +9,9 @@
   <a href="https://github.com/stefanomarrone/daphne/stargazers"><img alt="GitHub stars" src="https://img.shields.io/github/stars/stefanomarrone/daphne?style=social"></a>
 </p>
 
-<!--
 <p align="center">
-  <img src="Figures/daphne_pipeline.png" alt="DAPHNE Pipeline Workflow" width="40%">
+  <img src="Figures/daphne_pipeline.png" alt="DAPHNE Pipeline Workflow" width="65%">
 </p>
--->
 
 **DAPHNE** is a modular data acquisition framework designed to retrieve satellite imagery and environmental data from heterogeneous sources through a unified and configurable interface.
 

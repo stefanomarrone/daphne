@@ -31,13 +31,17 @@ def generate_zip_filepath(folder_name, lat, lon, country_name, start_date, end_d
     return filepath
 
 # Create a folder in the workspace with a name containing latitude, longitude, start date, end date, and catalog.
-def create_folder(lat, lon, country_name, start_date, end_date, catalog):
+def create_folder(lat, lon, country_name, start_date, end_date, catalog, output_folder_path):
     str_d, str_h = change_date_format(start_date)
     end_d, end_h = change_date_format(end_date)
     folder_name = create_folder_name(catalog, lat, lon, str_d, str_h, end_d, end_h, country_name)
     # Create the folder in the workspace
-    folder_path = os.path.join(os.getcwd(), folder_name)
-    os.makedirs(folder_path, exist_ok=True)
+    if output_folder_path != '':
+        folder_path = os.path.join(output_folder_path, folder_name)
+        os.makedirs(folder_path, exist_ok=True)
+    else:
+        folder_path = os.path.join(os.getcwd(), folder_name)
+        os.makedirs(folder_path, exist_ok=True)
 
     return folder_path
 

@@ -26,12 +26,20 @@ class EngineFactory:
         re = 'imageRE'
         fnames = ['fromdate', 'todate', 'longitude', 'latitude', 'countryname', 'area', 'imageresolution', 'format',
                   'imagetimeinterval']
+        try:
+            configuration.board[re]
+        except Exception:
+            return None
         return EngineFactory.generate(self,configuration, re, fnames)
 
     def generateData(self, configuration):
         re = 'dataRE'
         fnames = ['fromdate', 'todate', 'longitude', 'latitude', 'countryname', 'area', 'imageresolution', 'format',
                   'imagetimeinterval']
+        try:
+            configuration.board[re]
+        except Exception:
+            return None
         return EngineFactory.generate(self, configuration, re, fnames)
 
     def generate(self, configuration, re, fnames):

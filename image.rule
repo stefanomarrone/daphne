@@ -1,2 +1,2 @@
-['=', ['var', 'imageresolution'], 250]---LandsatImageFactory
-['>=', ['var', 'fromdate'], '2000-02-18', '<=', ['var', 'todate'], '2024-04-06']---LandsatImageFactory
+['=', ['var', 'imageresolution'], 250]---GeeImageFactory
+['>=', ['var', 'fromdate'], '2000-02-18', '<=', ['var', 'todate'], '2024-04-06']---GeeImageFactory

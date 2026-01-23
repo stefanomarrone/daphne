@@ -68,11 +68,16 @@ functions = {
     'download': download
 }
 
-if __name__ == '__main__':
-    configuration = Configuration(sys.argv[1])
-    command = functions[sys.argv[2]]
-    command(configuration)
+def errormessage():
+    print('There is an error in the command line!')
 
+if __name__ == '__main__':
+    if len(sys.argv) == 3:
+        configuration = Configuration(sys.argv[1])
+        command = functions[sys.argv[2]]
+        command(configuration)
+    else:
+        errormessage()
 '''
 if __name__ == '__main__':
 

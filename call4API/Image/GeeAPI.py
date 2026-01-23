@@ -14,12 +14,10 @@ from abc import ABC, abstractmethod
 class GeeCatalogStrategy(ABC):
     @abstractmethod
     def build_collection(self, catalog: str, ee_point, start_date: str, end_date: str):
-        """Return an ee.Image (or ee.ImageCollection first-image) ready to download."""
         raise NotImplementedError
 
     @abstractmethod
     def build_download_params(self, ee_point):
-        """Return the dict passed to image.getDownloadUrl(...)."""
         raise NotImplementedError
 
 class ModisStrategy(GeeCatalogStrategy):
@@ -85,26 +83,22 @@ class GeeAPI():
     def authenticate(self):
         ee.Authenticate()
 
-    def download_satellite_image(self, country_name, lat, lon, start_date, end_date, image_catalog_name="MODIS"):
+    def download_satellite_image(self, country_name, lat, lon, start_date, end_date, image_catalog_name, strategy, output_folder_path):
         self.inizialize()
 
         c_lt, c_ln = define_coordinates(lat, lon, country_name)
-        region = get_region_string([c_ln, c_lt],0.5)  # [lon, lat] ricorda che gee richiede le coordinate in modo inverso rispetto OPWeather
+        region = get_region_string([c_ln, c_lt],0.5)
         ee_point = ee.Geometry.Rectangle(region)
 
         catalog = image_catalog().get_collection_name(image_catalog_name)
 
-        output_folder = create_folder(c_lt, c_ln, country_name, start_date, end_date, image_catalog_name)
+        output_folder = create_folder(c_lt, c_ln, country_name, start_date, end_date, image_catalog_name, output_folder_path)
         print(output_folder)
         image_zip_filepath = generate_zip_filepath(output_folder, c_lt, c_ln, country_name, start_date, end_date, image_catalog_name)
 
 
         start_date_fmt, str_h = change_date_format(start_date)
         end_date_fmt, end_h = change_date_format(end_date)
-
-        strategy = self.strategies.get(image_catalog_name)
-        if strategy is None:
-            raise ValueError(f"No strategy found for catalog: '{image_catalog_name}'")
 
         collection = strategy.build_collection(catalog, ee_point, start_date_fmt, end_date_fmt)
         image = ee.Image(collection)
@@ -115,25 +109,19 @@ class GeeAPI():
         with open(image_zip_filepath, 'wb') as f:
             f.write(response.content)
 
-        print('Exporting image...')
+        print('Image Downloaded!')
         return image_zip_filepath
 
     def download_satellite_image_with_assets(self, catalog, ee_point, start_date, end_date, output_folder):
-        # Load a satellite image collection (e.g., Landsat, Modis)
         collection = ee.ImageCollection(catalog) \
             .filterBounds(ee_point) \
             .filterDate(start_date, end_date) \
             .first()
-        # Get the first image in the collection
         image = ee.Image(collection)
 
-        # Define the export task
         task = ee.batch.Export.image.toAsset(image=image, description='image_export',
                                              assetId='projects/ee-stelladebiase/assets/prova', region=ee_point,
                                              scale=30)
 
-        # Start the export task
         task.start()
-
-        # Print a message indicating that the export task has started
-        print('Exporting image...')
+        print('Image Downloaded!')

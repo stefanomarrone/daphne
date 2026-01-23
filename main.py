@@ -32,14 +32,16 @@ def grab(configurationname):
     configuration = Configuration(configurationname)
     # Image section
     imageEngine = EngineFactory().generateImage(configuration)
-    imagefactory = FactoryGenerator().generate(imageEngine)
-    imagegrabber = imagefactory().generate(configuration)
-    imagegrabber.grub(configuration)
+    if imageEngine is not None:
+        imagefactory = FactoryGenerator().generate(imageEngine)
+        imagegrabber = imagefactory().generate(configuration)
+        imagegrabber.grub(configuration)
     # Data section
     dataEngine = EngineFactory().generateData(configuration)
-    datafactory = FactoryGenerator().generate(dataEngine)
-    datagrabber = datafactory().concretegeneration(configuration)
-    datagrabber.grub(configuration)
+    if dataEngine is not None:
+        datafactory = FactoryGenerator().generate(dataEngine)
+        datagrabber = datafactory().concretegeneration(configuration)
+        datagrabber.grub(configuration)
 
 
 def errormessage():

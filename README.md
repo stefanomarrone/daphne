@@ -85,6 +85,20 @@ pip install -r requirements.txt
 ```
 
 ---
+
+## Execution
+
+TODO
+
+---
+
+## Replication Package
+
+TODO
+
+
+
+---
 ## License
 The software is licensed according to the GNU General Public License v3.0 (see License file).
 

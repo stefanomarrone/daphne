@@ -88,7 +88,17 @@ pip install -r requirements.txt
 
 ## Execution
 
-TODO
+Daphne depends on the MongoDB Service which can be downloaded and executed from https://github.com/stefanomarrone/mongodb_service
+
+For the execution of Daphne, these steps are to follow:
+1. execute an instance of MongoDB Service (https://github.com/stefanomarrone/mongodb_service)
+2. run the Daphne service with 
+
+```bash
+python api_main.py port_number mongodb_service_ip_address mongodb_service_port_number  
+```
+
+
 
 ---
 

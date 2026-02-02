@@ -1,3 +1,6 @@
+import tempfile
+
+from src.metaclasses import Singleton
 from configparser import ConfigParser
 from src.engine import RuleEngine
 import configparser
@@ -134,3 +137,30 @@ class Configuration(metaclass=Singleton):
             temp = reader['data'].get('datatimeinterval', '10')
             self.put('datatimeinterval', float(temp))
 
+
+
+def folderextraction(confcontent):
+    tmp = tempfile.NamedTemporaryFile()
+    handler = open(tmp.name, 'w')
+    handler.write(confcontent)
+    handler.flush()
+    reader = configparser.ConfigParser()
+    reader.read(tmp.name)
+    try:
+        temp = reader['main']['outfolder']
+    except Exception as s:
+        temp = None
+    return temp
+
+def mongoextraction(confcontent):
+    tmp = tempfile.NamedTemporaryFile()
+    handler = open(tmp.name, 'w')
+    handler.write(confcontent)
+    handler.flush()
+    reader = configparser.ConfigParser()
+    reader.read(tmp.name)
+    try:
+        temp = reader['main']['outfolder']
+    except Exception as s:
+        temp = None
+    return temp

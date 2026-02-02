@@ -5,6 +5,9 @@ from configparser import ConfigParser
 from src.engine import RuleEngine
 import configparser
 
+from src.metaclasses import Singleton
+
+
 class Configuration(metaclass=Singleton):
     def __init__(self, inifilename):
         self.board = dict()
@@ -66,41 +69,74 @@ class Configuration(metaclass=Singleton):
     def load(self, inifile):
         reader = ConfigParser()
         reader.read(inifile)
-        try:
-            temp = reader['main']['outfolder']
+        #MAIN
+        if reader.has_section('main'):
+            temp = reader['main'].get('outfolder', '')
             self.put('outfolder', temp)
-            kb = reader['main']['datakb']
-            dg = reader['main']['defaultdatafactory']
-            engine = RuleEngine(kb,dg)
-            self.put('dataRE', engine)
-            kb = reader['main']['imagekb']
-            dg = reader['main']['defaultimagefactory']
-            engine = RuleEngine(kb,dg)
-            self.put('imageRE', engine)
-            temp = reader['main']['fromdate']
+            kb = reader['main'].get('datakb')
+            if kb is not None:
+                dg = reader['main'].get('defaultdatafactory', '')
+                engine = RuleEngine(kb,dg)
+                self.put('dataRE', engine)
+            kb = reader['main'].get('imagekb')
+            if kb is not None:
+                dg = reader['main'].get('defaultimagefactory', 'GeeImageFactory')
+                engine = RuleEngine(kb,dg)
+                self.put('imageRE', engine)
+            temp = reader['main'].get('fromdate', '2023-06-01 12:00:00')
             self.put('fromdate', temp)
-            temp = reader['main']['todate']
+            temp = reader['main'].get('todate', '2024-05-01 12:00:00')
             self.put('todate', temp)
-
-            temp = reader['image']['longitude']
+        #IMAGE
+        if reader.has_section('image'):
+            temp = reader['image'].get('longitude', '18.105889')
             self.put('longitude', float(temp))
-            temp = reader['image']['latitude']
+            temp = reader['image'].get('latitude', '-28.038970')
             self.put('latitude', float(temp))
-            temp = reader['image']['area']
+            temp = reader['image'].get('area', '100')
             self.put('area', float(temp))
-            temp = reader['image']['imageresolution']
+            temp = reader['image'].get('countryname', '')
+            self.put('countryname', temp)
+            temp = reader['image'].get('imageresolution', '250')
             self.put('imageresolution', int(temp))
-            temp = reader['image']['format']
+            temp = reader['image'].get('format', 'jpg')
             self.put('format', temp)
-            temp = reader['image']['imagetimeinterval']
+            temp = reader['image'].get('imagetimeinterval', '10')
             self.put('imagetimeinterval', float(temp))
+            temp = reader['image'].get('resolutions', [])
+            temp = self.tolist(temp)
+            self.put('resolutions', temp)
+            temp = reader['image'].get('productTypes', [])
+            temp = self.tolist(temp)
+            self.put('productTypes', temp)
+            temp = reader['image'].get('providers', [])
+            temp = self.tolist(temp)
+            self.put('providers', temp)
+            temp = reader['image'].get('openData', 'True')
+            self.put('openData', temp)
+            temp = reader['image'].get('maxCloudCoveragePercent', 100)
+            self.put('maxCloudCoveragePercent', int(temp))
+        #SKYFI
+        if reader.has_section('skyfi'):
+            temp = reader['skyfi'].get('catalogfolder', None)
+            self.put('catalogfolder', temp)
+            temp = reader['skyfi'].get('orderrequestfolder', None)
+            self.put('orderrequestfolder', temp)
+            temp = reader['skyfi'].get('orderresponsefolder', None)
+            self.put('orderresponsefolder', temp)
+            temp = reader['skyfi'].get('downloadimagefolder', None)
+            self.put('downloadimagefolder', temp)
+            temp = reader['skyfi'].get('deliverabletype', 'image')
+            self.put('deliverabletype', str(temp))
 
+
+        #DATA
+        if reader.has_section('data'):
             datalist = self.tolist(reader['data']['data'])
             self.put('data', datalist)
-            temp = reader['data']['datatimeinterval']
+            temp = reader['data'].get('datatimeinterval', '10')
             self.put('datatimeinterval', float(temp))
-        except Exception as s:
-            print(s)
+
 
 
 def folderextraction(confcontent):

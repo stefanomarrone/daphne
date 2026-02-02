@@ -3,12 +3,11 @@ from src.datafactory import *
 
 class FactoryGenerator():
 
-    def generate(factoryname):
+    def generate(self, factoryname):
         map = {
-            'DummyDataFactory': DummyDataFactory,
-            'DummyImageFactory': DummyImageFactory,
-            'StupidDataFactory': StupidDataFactory,
-            'StupidImageFactory': StupidImageFactory
+            'OPWDataFactory': OPWDataFactory,
+            'GeeImageFactory': GeeImageFactory,
+            'SkifyImageFactory': SkifyImageFactory
         }
         return map[factoryname]
 

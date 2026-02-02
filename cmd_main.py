@@ -1,6 +1,9 @@
 import sys
 import os
-from src.core import grab_name
+from src.configuration import Configuration
+from src.concretefactory import FactoryGenerator
+from src.abstractfactory import EngineFactory
+
 
 # Configuration functions
 def singleextractor(configurationname):
@@ -11,7 +14,6 @@ def singleextractor(configurationname):
 def folderextractor(foldername):
     retval = list(os.listdir(foldername))
     retval = list(filter(lambda x: x.endswith(".ini"), retval))
-    retval = list(map(lambda x: foldername + x, retval))
     return retval
 
 
@@ -23,6 +25,24 @@ modes = {
     'single': singleextractor,
     'folder': folderextractor
 }
+
+
+# single working function
+def grab(configurationname):
+    configuration = Configuration(configurationname)
+    # Image section
+    imageEngine = EngineFactory().generateImage(configuration)
+    if imageEngine is not None:
+        imagefactory = FactoryGenerator().generate(imageEngine)
+        imagegrabber = imagefactory().generate(configuration)
+        imagegrabber.grub(configuration)
+    # Data section
+    dataEngine = EngineFactory().generateData(configuration)
+    if dataEngine is not None:
+        datafactory = FactoryGenerator().generate(dataEngine)
+        datagrabber = datafactory().concretegeneration(configuration)
+        datagrabber.grub(configuration)
+
 
 def errormessage():
     print('There is an error in the command line! There are two arguments.')
@@ -37,6 +57,6 @@ if __name__ == '__main__':
         nameextractor = modes.get(mode, dumbextractor)
         configurationnames = nameextractor(sys.argv[2])
         for configurationname in configurationnames:
-            grab_name(configurationname)
+            grab(configurationname)
     else:
         errormessage()

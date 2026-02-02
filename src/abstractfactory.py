@@ -11,7 +11,8 @@ class GrabberFactory():
 
 class ImageFactory(GrabberFactory):
     def getfeatures(self, configuration):
-        featurenames = ['fromdate', 'todate', 'longitude', 'latitude', 'area', 'imageresolution', 'format', 'imagetimeinterval']
+        featurenames = ['fromdate', 'todate', 'longitude', 'latitude', 'countryname', 'area', 'imageresolution', 'format',
+                        'imagetimeinterval']
         features = configuration.extract(featurenames)
         return features
 
@@ -25,23 +26,28 @@ class DataFactory(GrabberFactory):
 
 class EngineFactory:
 
-    def generateImage(configuration):
+    def generateImage(self, configuration):
         re = 'imageRE'
-        fnames = ['fromdate', 'todate', 'longitude', 'latitude', 'area', 'imageresolution', 'format',
-                            'imagetimeinterval']
-        return EngineFactory.generate(configuration, re, fnames)
+        fnames = ['fromdate', 'todate', 'longitude', 'latitude', 'countryname', 'area', 'imageresolution', 'format',
+                  'imagetimeinterval']
+        try:
+            configuration.board[re]
+        except Exception:
+            return None
+        return EngineFactory.generate(self,configuration, re, fnames)
 
-
-    def generateData(configuration):
+    def generateData(self, configuration):
         re = 'dataRE'
-        fnames = ['fromdate', 'todate', 'longitude', 'latitude', 'area', 'imageresolution', 'format',
-                            'imagetimeinterval']
-        return EngineFactory.generate(configuration, re, fnames)
+        fnames = ['fromdate', 'todate', 'longitude', 'latitude', 'countryname', 'area', 'imageresolution', 'format',
+                  'imagetimeinterval']
+        try:
+            configuration.board[re]
+        except Exception:
+            return None
+        return EngineFactory.generate(self, configuration, re, fnames)
 
-
-    def generate(configuration, re, fnames):
+    def generate(self, configuration, re, fnames):
         engine = configuration.get(re)
         features = configuration.extract(fnames)
         match = engine.match(features)
         return match
-

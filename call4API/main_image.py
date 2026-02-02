@@ -1,0 +1,98 @@
+from call4API.Image.skyfiOrder import Order
+from call4API.catalog.polygon_catalog import polygon_catalog
+from call4API.catalog.coordinates_catalog import coordinates_catalog
+from call4API.Image.GeeAPI import GeeAPI
+import sys
+from src.configuration import Configuration
+from call4API.Image.skyfiApi import Skyfi
+
+
+def skyfi(conf: Configuration):
+    sky = Skyfi(conf)
+    print("----User Info----")
+    sky.get_current_user()
+    print("----List Orders----")
+    sky.get_user_orders(info_print=True)
+
+def catalog(conf: Configuration):
+    sky = Skyfi(conf)
+    sky.catalog_gallery()
+
+def order_request(conf: Configuration):
+    sky = Skyfi(conf)
+    txt_path = "/Users/stella/programming/repo4pat/skyfi_document/order_request/order_request.txt"
+    order = Order(conf)
+    order.order_txt_to_csv(txt_path)
+    archive_ids = order.get_achiveId_toplace()
+    response_data = sky.place_orders(archive_ids=archive_ids, delivery_driver="NONE",delivery_params=None)
+    order.save_order_response(response_data)
+
+
+def order_status(conf: Configuration):
+    sky = Skyfi(conf)
+    orderId = "2bcf71c0-2723-467c-80ec-9129c08fc857"
+    sky.get_order_status(orderId, print_info=True)
+
+def update_orders(conf: Configuration):
+    sky = Skyfi(conf)
+    order = Order(conf)
+    try:
+        orders = sky.get_user_orders()
+        order.update_order_response(orders["orders"])
+    except Exception as e_detail:
+        print(f"Impossibile aggiornare gli ordini: {e_detail}")
+
+def download(conf: Configuration):
+    global orderId
+    sky = Skyfi(conf)
+    order = Order(conf)
+    orderIds_to_download = order.get_order_to_download(all=False)
+    if len(orderIds_to_download) == 0:
+        print(f"Non ci sono nuove immagini da scaricare!")
+    else:
+        try:
+            for orderId in orderIds_to_download:
+                sky.download_deliverable(orderId)
+        except Exception as e_detail:
+            print(f"Impossibile scaricare ordine {orderId}: {e_detail}")
+
+        order.update_orders_csv_after_download(orderIds_to_download)
+
+
+functions = {
+    'skyfi': skyfi,
+    'catalog': catalog,
+    'order_request': order_request,
+    'order_status': order_status,
+    'update_orders': update_orders,
+    'download': download
+}
+
+def errormessage():
+    print('There is an error in the command line!')
+
+if __name__ == '__main__':
+    if len(sys.argv) == 3:
+        configuration = Configuration(sys.argv[1])
+        command = functions[sys.argv[2]]
+        command(configuration)
+    else:
+        errormessage()
+'''
+if __name__ == '__main__':
+
+   lat = -16.949631
+   lon = 12.332528
+   #lat = None
+   #lon = None
+   start_date = "2023-01-01 12:00:00"
+   end_date = "2023-01-02 12:00:00"
+   image_catalog_name = "MODIS"
+   #country_name = "Saudi_Arabia"
+   country_name = ''
+
+
+   geeAPI = GeeAPI()
+   geeAPI.authenticate()
+   geeAPI.download_satellite_image(country_name, lat, lon, start_date, end_date, image_catalog_name)
+'''

@@ -37,7 +37,7 @@ def main():
     parser.add_argument(
         "--entrypoint",
         type=str,
-        default="main.py",
+        default="cmd_main.py",
         help="Entrypoint script (relative to project root).",
     )
     args = parser.parse_args()

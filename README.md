@@ -83,7 +83,23 @@ All required dependencies are listed in the `requirements.txt` file provided in 
 ```bash
 pip install -r requirements.txt
 ```
+### Google Earth Engine prerequisite
 
+Some acquisition scenarios supported by DAPHNE rely on **Google Earth Engine (GEE)** (e.g. MODIS or Landsat collections).
+
+Due to Google Earth Engine access policies, running these scenarios requires
+an **active Google Cloud project** associated with the user account.
+
+To enable GEE-based acquisition, the user must:
+
+1. Create or select a Google Cloud project, in the [Google Cloud Console](https://cloud.google.com/cloud-console?utm_source=google&utm_medium=cpc&utm_campaign=Cloud-SS-DR-GCP-1713666-GCP-DR-EMEA-IT-en-Google-BKWS-MIX-na&utm_content=c-Hybrid+%7C+BKWS+-+MIX+%7C+Txt+-+Generic+Cloud-Console-Cloud+Console-55675752867&utm_term=google+cloud+console&gclsrc=aw.ds&gad_source=1&gad_campaignid=19865870602&gclid=Cj0KCQiAnJHMBhDAARIsABr7b85HIhB9esBDoQl_FODAtKL7qTz8kGskge5fz6LI-vzAtymm5lhm1jAaAqKCEALw_wcB).
+2. Define the project identifier locally as an environment variable.
+
+In particular, the following variable must be added to the `.env` file:
+
+```bash
+EARTHENGINE_PROJECT=your_project_id
+```
 ---
 
 ## Execution
@@ -91,22 +107,40 @@ pip install -r requirements.txt
 Daphne depends on the MongoDB Service which can be downloaded and executed from https://github.com/stefanomarrone/mongodb_service
 
 For the execution of Daphne, these steps are to follow:
-1. execute an instance of MongoDB Service (https://github.com/stefanomarrone/mongodb_service)
-2. run the Daphne service with 
-
+1) Start MongoDB (external service)  
+execute an instance of [MongoDB Service](https://github.com/stefanomarrone/mongodb_service) and take note of:
+   - MongoDB IP address (e.g., `127.0.0.1`)
+    - MongoDB port (e.g., `1813`)
+    - 
+2) Start the DAPHNE API  
+run the Daphne service with
 ```bash
-python api_main.py port_number mongodb_service_ip_address mongodb_service_port_number  
+python api_main.py <port_number> >mongodb_service_ip_address> <mongodb_service_port_number>  
+```
+3) Send an acquisition request
+In a second terminal, run:
+```bash
+python client_prova.py
 ```
 
-
+Note: Some providers (e.g. Google Earth Engine) require external credentials
+and are therefore disabled by default unless explicitly configured.
 
 ---
 
 ## Replication Package
 
-TODO
+This repository includes a minimal replication package designed to reproduce
+a representative data acquisition workflow using *DAPHNE*.  
+The goal is to demonstrate how the framework can be configured and executed to retrieve satellite imagery.  
 
+### Included materials
 
+The replication package provides:
+
+- a sample configuration file defining;
+- a minimal execution example using open-access data sources; **TODO**
+- a reproducible directory structure for downloaded data. **TODO**
 
 ---
 ## License

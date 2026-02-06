@@ -43,3 +43,11 @@ class SkifyImageGrubber:
         #self.skyfi.get_order_status(dei 5 ordini) se lo stato è PROCESSING_COMPLETE allora
         #self.skyfi.download_deliverable(id)
         pass
+
+
+class NoImageGrubber:
+    def __init__(self, configuration):
+        pass
+
+    def grub(self, configuration):
+        pass

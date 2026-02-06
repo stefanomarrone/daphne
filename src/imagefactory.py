@@ -15,3 +15,6 @@ class SkifyImageFactory(ImageFactory):
         return SkifyImageGrubber(configuration)
 
 
+class NoImageFactory(ImageFactory):
+    def concretegeneration(self, configuration):
+        return NoImageGrubber(configuration)

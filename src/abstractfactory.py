@@ -40,8 +40,8 @@ class EngineFactory:
 
     def generateData(self):
         re = 'dataRE'
-        fnames = ['fromdate', 'todate', 'longitude', 'latitude', 'countryname', 'area', 'imageresolution', 'format',
-                  'imagetimeinterval']
+        fnames = ['fromdate', 'todate', 'longitude', 'latitude', 'countryname', 'area', 'data', 'format',
+                  'datatimeinterval']
         try:
             self.configuration.board[re]
         except Exception:

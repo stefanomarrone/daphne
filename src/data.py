@@ -85,3 +85,11 @@ class OPWDataGrabber:
             print('Error:', response.status_code)
             print('Reason:', response.reason)
             raise Exception('Error')
+
+
+class NoDataGrubber:
+    def __init__(self, configuration):
+        pass
+
+    def grub(self, configuration):
+        pass

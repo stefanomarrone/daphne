@@ -50,9 +50,15 @@ def grab_name(configurationname):
     try:
         configuration = Configuration(configurationname)
         # Image section
-        image_retval = imagegrab(configuration)
+        if configuration.get('flag_image'):
+            image_retval = imagegrab(configuration)
+        else:
+            image_retval = True
         # Data section
-        data_retval = datagrab(configuration)
+        if configuration.get('flag_data'):
+            data_retval = datagrab(configuration)
+        else:
+            data_retval = True
     except Exception:
         pass
     return image_retval, data_retval

@@ -11,6 +11,9 @@ from call4API.scripts.utils import get_region_string
 from call4API.scripts.date_utils import date_to_date_hour, change_date_format
 from abc import ABC, abstractmethod
 
+from mongodb import MongoWriter
+
+
 class GeeCatalogStrategy(ABC):
     @abstractmethod
     def build_collection(self, catalog: str, ee_point, start_date: str, end_date: str):
@@ -94,7 +97,7 @@ class GeeAPI():
         catalog = image_catalog().get_collection_name(image_catalog_name)
 
         output_folder = create_folder(c_lt, c_ln, country_name, start_date, end_date, image_catalog_name, output_folder_path)
-        print(output_folder)
+        #print(output_folder)
         image_zip_filepath = generate_zip_filepath(output_folder, c_lt, c_ln, country_name, start_date, end_date, image_catalog_name)
 
 
@@ -109,8 +112,6 @@ class GeeAPI():
         response = requests.get(url)
         with open(image_zip_filepath, 'wb') as f:
             f.write(response.content)
-
-        print('Image Downloaded!')
         return image_zip_filepath
 
     def download_satellite_image_with_assets(self, catalog, ee_point, start_date, end_date, output_folder):

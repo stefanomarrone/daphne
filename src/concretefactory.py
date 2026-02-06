@@ -5,6 +5,8 @@ class FactoryGenerator():
 
     def generate(factoryname):
         map = {
+            'NoData': NoDataFactory,
+            'NoImage': NoImageFactory,
             'OPWDataFactory': OPWDataFactory,
             'GeeImageFactory': GeeImageFactory,
             'SkifyImageFactory': SkifyImageFactory

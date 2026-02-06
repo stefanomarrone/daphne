@@ -74,6 +74,18 @@ It abstracts provider-specific logic behind a unified interface, enabling seamle
 
 ---
 
+## Prerequisites and Environment Variables
+
+Daphne may use serval external services to search and download satellite images: in these cases extra information could be added to the framework.
+As example, if you want to use Google Earth Engine as an image provider, please add a _.env_ file to the project with the variable EARTHENGINE_PROJECT set to the name of the project on Google.
+
+Here, some external providers are reported, with the environment variable to set:
+* Google Earth Engine: 
+* [OpenWeather](https://openweathermap.org): 
+  * OPENWEATHER_API_KEY must be set to the generated token
+* SkyFI
+* 
+
 ## Dependencies
 
 The framework is implemented in Python (version 3.9 recommended).

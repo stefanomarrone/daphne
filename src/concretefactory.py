@@ -3,7 +3,7 @@ from src.datafactory import *
 
 class FactoryGenerator():
 
-    def generate(self, factoryname):
+    def generate(factoryname):
         map = {
             'OPWDataFactory': OPWDataFactory,
             'GeeImageFactory': GeeImageFactory,

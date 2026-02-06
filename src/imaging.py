@@ -14,7 +14,7 @@ def extract_feature_from_configuration(configuration):
 def extract_output_folder(configuration):
     return configuration.board['outfolder']
 
-class ImageGrabber():
+class ImageGrabber:
     def __init__(self, features):
         pass
         self.features = features
@@ -26,8 +26,7 @@ class GeeImageGrubber:
         self.gee = gee_api
 
     def grub(self, configuration):
-        lat, lon, start_date, end_date, country_name \
-            = extract_feature_from_configuration(configuration)
+        lat, lon, start_date, end_date, country_name = extract_feature_from_configuration(configuration)
         output_folder = extract_output_folder(configuration)
         for image_catalog_name, strategy in self.gee.strategies.items():
             self.gee.download_satellite_image(country_name, lat, lon, start_date, end_date, image_catalog_name, strategy, output_folder)

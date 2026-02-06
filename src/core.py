@@ -17,16 +17,12 @@ def grab(configuration):
 def imagegrab(configuration):
     retval = False
     try:
+        factory = EngineFactory(configuration)
         # Image section
-        imageEngine = EngineFactory.generateImage(configuration)
+        imageEngine = factory.generateImage()
         imagefactory = FactoryGenerator.generate(imageEngine)
         imagegrabber = imagefactory().generate(configuration)
-        imagegrabber.grub()
-        # Data section
-        dataEngine = EngineFactory.generateData(configuration)
-        datafactory = FactoryGenerator.generate(dataEngine)
-        datagrabber = datafactory().generate(configuration)
-        datagrabber.grub()
+        imagegrabber.grub(configuration)
         retval = True
     except Exception:
         pass
@@ -36,11 +32,12 @@ def imagegrab(configuration):
 def datagrab(configuration):
     retval = False
     try:
+        factory = EngineFactory(configuration)
         # Data section
-        dataEngine = EngineFactory.generateData(configuration)
+        dataEngine = factory.generateData()
         datafactory = FactoryGenerator.generate(dataEngine)
         datagrabber = datafactory().generate(configuration)
-        datagrabber.grub()
+        datagrabber.grub(configuration)
         retval = True
     except Exception:
         pass

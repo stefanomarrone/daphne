@@ -84,6 +84,7 @@ class GeeAPI():
         ee.Authenticate()
 
     def download_satellite_image(self, country_name, lat, lon, start_date, end_date, image_catalog_name, strategy, output_folder_path):
+        self.authenticate()
         self.inizialize()
 
         c_lt, c_ln = define_coordinates(lat, lon, country_name)

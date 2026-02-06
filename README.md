@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <img src="legacy_code/Figures/daphne_pipeline.png" alt="DAPHNE Pipeline Workflow" width="65%">
+  <img src="Figures/daphne_pipeline.png" alt="DAPHNE Pipeline Workflow" width="65%">
 </p>
 
 **DAPHNE** is a modular data acquisition framework designed to retrieve satellite imagery and environmental data from heterogeneous sources through a unified and configurable interface.

@@ -1,10 +1,7 @@
-from call4API.Image.skyfiOrder import Order
-from call4API.catalog.polygon_catalog import polygon_catalog
-from call4API.catalog.coordinates_catalog import coordinates_catalog
-from call4API.Image.GeeAPI import GeeAPI
+from legacy_code.call4API.Image.skyfiOrder import Order
 import sys
 from src.configuration import Configuration
-from call4API.Image.skyfiApi import Skyfi
+from legacy_code.call4API.Image.skyfiApi import Skyfi
 
 
 def skyfi(conf: Configuration):
@@ -78,21 +75,3 @@ if __name__ == '__main__':
         command(configuration)
     else:
         errormessage()
-'''
-if __name__ == '__main__':
-
-   lat = -16.949631
-   lon = 12.332528
-   #lat = None
-   #lon = None
-   start_date = "2023-01-01 12:00:00"
-   end_date = "2023-01-02 12:00:00"
-   image_catalog_name = "MODIS"
-   #country_name = "Saudi_Arabia"
-   country_name = ''
-
-
-   geeAPI = GeeAPI()
-   geeAPI.authenticate()
-   geeAPI.download_satellite_image(country_name, lat, lon, start_date, end_date, image_catalog_name)
-'''

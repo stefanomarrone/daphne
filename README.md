@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <img src="Figures/daphne_pipeline.png" alt="DAPHNE Pipeline Workflow" width="65%">
+  <img src="legacy_code/Figures/daphne_pipeline.png" alt="DAPHNE Pipeline Workflow" width="65%">
 </p>
 
 **DAPHNE** is a modular data acquisition framework designed to retrieve satellite imagery and environmental data from heterogeneous sources through a unified and configurable interface.
@@ -74,8 +74,19 @@ It abstracts provider-specific logic behind a unified interface, enabling seamle
 
 ---
 
-## Dependencies
+## Prerequisites and Environment Variables
 
+Daphne may use serval external services to search and download satellite images: in these cases extra information could be added to the framework.
+As example, if you want to use Google Earth Engine as an image provider, please add a _.env_ file to the project with the variable EARTHENGINE_PROJECT set to the name of the project on Google.
+
+Here, some external providers are reported, with the environment variable to set:
+* [Google Earth Engine](https://earthengine.google.com/): 
+  * EARTHENGINE_PROJECT must be set to define the project.
+* [OpenWeather](https://openweathermap.org): 
+  * OPENWEATHER_API_KEY must be set to the generated token
+
+
+## Dependencies
 The framework is implemented in Python (version 3.9 recommended).
 
 All required dependencies are listed in the `requirements.txt` file provided in the repository and can be installed using:
@@ -83,20 +94,55 @@ All required dependencies are listed in the `requirements.txt` file provided in 
 ```bash
 pip install -r requirements.txt
 ```
+### Google Earth Engine prerequisite
 
+Some acquisition scenarios supported by DAPHNE rely on **Google Earth Engine (GEE)** (e.g. MODIS or Landsat collections).
+
+Due to Google Earth Engine access policies, running these scenarios requires
+an **active Google Cloud project** associated with the user account.
+
+To enable GEE-based acquisition, the user must:
+
+1. Create or select a Google Cloud project, in the [Google Cloud Console](https://cloud.google.com/cloud-console?utm_source=google&utm_medium=cpc&utm_campaign=Cloud-SS-DR-GCP-1713666-GCP-DR-EMEA-IT-en-Google-BKWS-MIX-na&utm_content=c-Hybrid+%7C+BKWS+-+MIX+%7C+Txt+-+Generic+Cloud-Console-Cloud+Console-55675752867&utm_term=google+cloud+console&gclsrc=aw.ds&gad_source=1&gad_campaignid=19865870602&gclid=Cj0KCQiAnJHMBhDAARIsABr7b85HIhB9esBDoQl_FODAtKL7qTz8kGskge5fz6LI-vzAtymm5lhm1jAaAqKCEALw_wcB).
+2. Define the project identifier locally as an environment variable.
+
+In particular, the following variable must be added to the `.env` file:
+
+```bash
+EARTHENGINE_PROJECT=your_project_id
+```
 ---
 
 ## Execution
 
-TODO
+Daphne depends on the MongoDB Service which can be downloaded and executed from https://github.com/stefanomarrone/mongodb_service
+
+For the execution of Daphne, these steps are to follow:
+1) Start MongoDB (external service)  
+execute an instance of [MongoDB Service](https://github.com/stefanomarrone/mongodb_service) and take note of:
+   - MongoDB IP address (e.g., `127.0.0.1`)
+   - MongoDB port (e.g., `1813`) 
+2) Start the DAPHNE API  
+run the Daphne service with
+```bash
+python api_main.py <port_number> >mongodb_service_ip_address> <mongodb_service_port_number>  
+```
+3) Now you can request to DAPHNE a set of image/data retrivals by invoking the API _/execute_ endpoint
+posting on that endpoint the items to request. The stucture of the JSON files are represented in [models.py](src/models.py) as a set of Pydantic classes.
+
+4) After the response by DAPHNE, a JSON response is given back including the names of the retrieved files, which are stored by the Mongo Service.
+
+An example of a simple client is in the Replication Package.
+
+Note: Some providers (e.g. Google Earth Engine) require external credentials
+and are therefore disabled by default unless explicitly configured.
 
 ---
 
 ## Replication Package
 
-TODO
-
-
+This repository includes a minimal replication package designed to reproduce
+a representative data acquisition workflow using *DAPHNE*. See [README.md](replication/README.md). 
 
 ---
 ## License

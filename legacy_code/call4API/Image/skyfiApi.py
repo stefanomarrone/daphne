@@ -5,11 +5,11 @@ from dotenv import load_dotenv
 import webbrowser
 from pathlib import Path
 from datetime import datetime
-from call4API.catalog.coordinates_catalog import coordinates_catalog
-from call4API.catalog.polygon_catalog import polygon_catalog
-from call4API.scripts.date_utils import date_to_iso, _fmt_date, from_iso_format, replace_str_with_date
-from call4API.scripts.utils import _pct, extract_feature_from_configuration
-from call4API.template.skyfi_template_html import skyfi_template_html
+from legacy_code.call4API.catalog.coordinates_catalog import coordinates_catalog
+from legacy_code.call4API.catalog.polygon_catalog import polygon_catalog
+from legacy_code.call4API.scripts.date_utils import date_to_iso, _fmt_date, from_iso_format, replace_str_with_date
+from legacy_code.call4API.scripts.utils import _pct, extract_feature_from_configuration
+from legacy_code.call4API.template.skyfi_template_html import skyfi_template_html
 
 class Skyfi:
     def __init__(self, conf):

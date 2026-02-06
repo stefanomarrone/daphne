@@ -1,9 +1,9 @@
 
-from call4API.Data.WeatherAPI import WeatherAPI
-from call4API.Data.WeatherData import WeatherData
-from call4API.scripts.csv_utils import *
+from legacy_code.call4API.Data.WeatherAPI import WeatherAPI
+from legacy_code.call4API.Data.WeatherData import WeatherData
+from legacy_code.call4API.scripts.csv_utils import *
 
-from call4API.scripts.json_utils import *
+from legacy_code.call4API.scripts.json_utils import *
 from dotenv import load_dotenv
 
 from src.data import OPWDataGrabber

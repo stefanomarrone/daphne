@@ -3,8 +3,10 @@ from src.datafactory import *
 
 class FactoryGenerator():
 
-    def generate(self, factoryname):
+    def generate(factoryname):
         map = {
+            'NoData': NoDataFactory,
+            'NoImage': NoImageFactory,
             'OPWDataFactory': OPWDataFactory,
             'GeeImageFactory': GeeImageFactory,
             'SkifyImageFactory': SkifyImageFactory

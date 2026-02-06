@@ -4,11 +4,11 @@ from typing import List
 import requests
 from dotenv import load_dotenv
 
-from call4API.Data.WeatherData import WeatherDataFields, WeatherData
-from call4API.scripts.date_utils import date_to_timestamp
-from call4API.scripts.csv_utils import generate_csv_filename, write_dicts_to_csv
-from call4API.scripts.json_utils import create_folder, generate_json_filepath, write_json_to_file
-from call4API.scripts.utils import define_coordinates
+from legacy_code.call4API.Data.WeatherData import WeatherDataFields, WeatherData
+from legacy_code.call4API.scripts.date_utils import date_to_timestamp
+from legacy_code.call4API.scripts.csv_utils import generate_csv_filename, write_dicts_to_csv
+from legacy_code.call4API.scripts.json_utils import create_folder, generate_json_filepath, write_json_to_file
+from legacy_code.call4API.scripts.utils import define_coordinates
 
 
 def extract_feature_from_configuration(features):
@@ -85,3 +85,11 @@ class OPWDataGrabber:
             print('Error:', response.status_code)
             print('Reason:', response.reason)
             raise Exception('Error')
+
+
+class NoDataGrubber:
+    def __init__(self, configuration):
+        pass
+
+    def grub(self, configuration):
+        pass

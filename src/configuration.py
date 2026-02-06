@@ -73,11 +73,15 @@ class Configuration(metaclass=Singleton):
         if reader.has_section('main'):
             temp = reader['main'].get('outfolder', '')
             self.put('outfolder', temp)
+            temp = reader['main'].get('flag_data', False)
+            self.put('flag_data', temp == 'True')
             kb = reader['main'].get('datakb')
             if kb is not None:
                 dg = reader['main'].get('defaultdatafactory', '')
                 engine = RuleEngine(kb,dg)
                 self.put('dataRE', engine)
+            temp = reader['main'].get('flag_image', False)
+            self.put('flag_image', temp == 'True')
             kb = reader['main'].get('imagekb')
             if kb is not None:
                 dg = reader['main'].get('defaultimagefactory', 'GeeImageFactory')

@@ -1,5 +1,5 @@
 # Class to store the response from OpenWeatherAPI
-from call4API.scripts.date_utils import timestamp_to_date
+from legacy_code.call4API.scripts.date_utils import timestamp_to_date
 from typing import List, Dict
 
 

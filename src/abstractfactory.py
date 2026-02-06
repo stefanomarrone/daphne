@@ -26,28 +26,30 @@ class DataFactory(GrabberFactory):
 
 class EngineFactory:
 
-    def generateImage(self, configuration):
+    def __init__(self, configuration):
+        self.configuration = configuration
+
+    def generateImage(self):
         re = 'imageRE'
-        fnames = ['fromdate', 'todate', 'longitude', 'latitude', 'countryname', 'area', 'imageresolution', 'format',
-                  'imagetimeinterval']
+        fnames = ['fromdate', 'todate', 'longitude', 'latitude', 'countryname', 'area', 'imageresolution', 'format', 'imagetimeinterval']
         try:
-            configuration.board[re]
+            self.configuration.board[re]
         except Exception:
             return None
-        return EngineFactory.generate(self,configuration, re, fnames)
+        return EngineFactory.generate(self, re, fnames)
 
-    def generateData(self, configuration):
+    def generateData(self):
         re = 'dataRE'
-        fnames = ['fromdate', 'todate', 'longitude', 'latitude', 'countryname', 'area', 'imageresolution', 'format',
-                  'imagetimeinterval']
+        fnames = ['fromdate', 'todate', 'longitude', 'latitude', 'countryname', 'area', 'data', 'format',
+                  'datatimeinterval']
         try:
-            configuration.board[re]
+            self.configuration.board[re]
         except Exception:
             return None
-        return EngineFactory.generate(self, configuration, re, fnames)
+        return EngineFactory.generate(self, re, fnames)
 
-    def generate(self, configuration, re, fnames):
-        engine = configuration.get(re)
-        features = configuration.extract(fnames)
+    def generate(self, re, fnames):
+        engine = self.configuration.get(re)
+        features = self.configuration.extract(fnames)
         match = engine.match(features)
         return match

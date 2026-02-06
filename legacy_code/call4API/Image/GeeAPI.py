@@ -4,12 +4,13 @@ import ee
 import requests
 from dotenv import load_dotenv
 
-from call4API.catalog.coordinates_catalog import coordinates_catalog
-from call4API.catalog.image_catalog import image_catalog
-from call4API.scripts.json_utils import create_folder, generate_zip_filepath
-from call4API.scripts.utils import get_region_string
-from call4API.scripts.date_utils import date_to_date_hour, change_date_format
+from legacy_code.call4API.catalog.coordinates_catalog import coordinates_catalog
+from legacy_code.call4API.catalog.image_catalog import image_catalog
+from legacy_code.call4API.scripts.json_utils import generate_zip_filepath
+from legacy_code.call4API.scripts.utils import get_region_string
+from legacy_code.call4API.scripts.date_utils import change_date_format
 from abc import ABC, abstractmethod
+
 
 class GeeCatalogStrategy(ABC):
     @abstractmethod
@@ -84,6 +85,7 @@ class GeeAPI():
         ee.Authenticate()
 
     def download_satellite_image(self, country_name, lat, lon, start_date, end_date, image_catalog_name, strategy, output_folder_path):
+        self.authenticate()
         self.inizialize()
 
         c_lt, c_ln = define_coordinates(lat, lon, country_name)
@@ -92,9 +94,9 @@ class GeeAPI():
 
         catalog = image_catalog().get_collection_name(image_catalog_name)
 
-        output_folder = create_folder(c_lt, c_ln, country_name, start_date, end_date, image_catalog_name, output_folder_path)
-        print(output_folder)
-        image_zip_filepath = generate_zip_filepath(output_folder, c_lt, c_ln, country_name, start_date, end_date, image_catalog_name)
+        #output_folder = create_folder(c_lt, c_ln, country_name, start_date, end_date, image_catalog_name, output_folder_path)
+        #print(output_folder)
+        image_zip_filepath = generate_zip_filepath(output_folder_path, c_lt, c_ln, country_name, start_date, end_date, image_catalog_name)
 
 
         start_date_fmt, str_h = change_date_format(start_date)
@@ -108,8 +110,6 @@ class GeeAPI():
         response = requests.get(url)
         with open(image_zip_filepath, 'wb') as f:
             f.write(response.content)
-
-        print('Image Downloaded!')
         return image_zip_filepath
 
     def download_satellite_image_with_assets(self, catalog, ee_point, start_date, end_date, output_folder):

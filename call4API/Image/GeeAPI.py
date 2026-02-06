@@ -96,9 +96,9 @@ class GeeAPI():
 
         catalog = image_catalog().get_collection_name(image_catalog_name)
 
-        output_folder = create_folder(c_lt, c_ln, country_name, start_date, end_date, image_catalog_name, output_folder_path)
+        #output_folder = create_folder(c_lt, c_ln, country_name, start_date, end_date, image_catalog_name, output_folder_path)
         #print(output_folder)
-        image_zip_filepath = generate_zip_filepath(output_folder, c_lt, c_ln, country_name, start_date, end_date, image_catalog_name)
+        image_zip_filepath = generate_zip_filepath(output_folder_path, c_lt, c_ln, country_name, start_date, end_date, image_catalog_name)
 
 
         start_date_fmt, str_h = change_date_format(start_date)

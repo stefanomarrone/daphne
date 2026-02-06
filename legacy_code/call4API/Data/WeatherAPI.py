@@ -1,7 +1,7 @@
 # Class to implement the get call for different weather API
 import requests
 
-from call4API.scripts.date_utils import date_to_timestamp
+from legacy_code.call4API.scripts.date_utils import date_to_timestamp
 
 
 class WeatherAPI:

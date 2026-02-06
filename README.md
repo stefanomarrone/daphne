@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <img src="Figures/daphne_pipeline.png" alt="DAPHNE Pipeline Workflow" width="65%">
+  <img src="legacy_code/Figures/daphne_pipeline.png" alt="DAPHNE Pipeline Workflow" width="65%">
 </p>
 
 **DAPHNE** is a modular data acquisition framework designed to retrieve satellite imagery and environmental data from heterogeneous sources through a unified and configurable interface.
@@ -80,14 +80,13 @@ Daphne may use serval external services to search and download satellite images:
 As example, if you want to use Google Earth Engine as an image provider, please add a _.env_ file to the project with the variable EARTHENGINE_PROJECT set to the name of the project on Google.
 
 Here, some external providers are reported, with the environment variable to set:
-* Google Earth Engine: 
+* [Google Earth Engine](https://earthengine.google.com/): 
+  * EARTHENGINE_PROJECT must be set to define the project.
 * [OpenWeather](https://openweathermap.org): 
   * OPENWEATHER_API_KEY must be set to the generated token
-* SkyFI
-* 
+
 
 ## Dependencies
-
 The framework is implemented in Python (version 3.9 recommended).
 
 All required dependencies are listed in the `requirements.txt` file provided in the repository and can be installed using:
@@ -122,18 +121,18 @@ For the execution of Daphne, these steps are to follow:
 1) Start MongoDB (external service)  
 execute an instance of [MongoDB Service](https://github.com/stefanomarrone/mongodb_service) and take note of:
    - MongoDB IP address (e.g., `127.0.0.1`)
-    - MongoDB port (e.g., `1813`)
-    - 
+   - MongoDB port (e.g., `1813`) 
 2) Start the DAPHNE API  
 run the Daphne service with
 ```bash
 python api_main.py <port_number> >mongodb_service_ip_address> <mongodb_service_port_number>  
 ```
-3) Send an acquisition request
-In a second terminal, run:
-```bash
-python client_prova.py
-```
+3) Now you can request to DAPHNE a set of image/data retrivals by invoking the API _/execute_ endpoint
+posting on that endpoint the items to request. The stucture of the JSON files are represented in [models.py](src/models.py) as a set of Pydantic classes.
+
+4) After the response by DAPHNE, a JSON response is given back including the names of the retrieved files, which are stored by the Mongo Service.
+
+An example of a simple client is in the Replication Package.
 
 Note: Some providers (e.g. Google Earth Engine) require external credentials
 and are therefore disabled by default unless explicitly configured.
@@ -143,16 +142,7 @@ and are therefore disabled by default unless explicitly configured.
 ## Replication Package
 
 This repository includes a minimal replication package designed to reproduce
-a representative data acquisition workflow using *DAPHNE*.  
-The goal is to demonstrate how the framework can be configured and executed to retrieve satellite imagery.  
-
-### Included materials
-
-The replication package provides:
-
-- a sample configuration file defining;
-- a minimal execution example using open-access data sources; **TODO**
-- a reproducible directory structure for downloaded data. **TODO**
+a representative data acquisition workflow using *DAPHNE*. See [README.md](replication/README.md). 
 
 ---
 ## License

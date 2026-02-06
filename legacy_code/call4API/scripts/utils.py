@@ -1,6 +1,4 @@
-from datetime import datetime
-
-from call4API.catalog.coordinates_catalog import coordinates_catalog
+from legacy_code.call4API.catalog.coordinates_catalog import coordinates_catalog
 
 
 # function to define a rectangle given lat-lon and region_size

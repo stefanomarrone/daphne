@@ -1,7 +1,7 @@
-from call4API.Image.skyfiOrder import Order
+from legacy_code.call4API.Image.skyfiOrder import Order
 import sys
 from src.configuration import Configuration
-from call4API.Image.skyfiApi import Skyfi
+from legacy_code.call4API.Image.skyfiApi import Skyfi
 
 
 def skyfi(conf: Configuration):

@@ -1,6 +1,6 @@
-from call4API.Image.GeeAPI import GeeAPI
-from call4API.Image.skyfiApi import Skyfi
-from call4API.catalog.image_catalog import image_catalog
+from legacy_code.call4API.Image.GeeAPI import GeeAPI
+from legacy_code.call4API.Image.skyfiApi import Skyfi
+from legacy_code.call4API.catalog.image_catalog import image_catalog
 
 def extract_feature_from_configuration(configuration):
     board = configuration.board

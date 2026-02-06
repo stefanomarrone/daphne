@@ -1,6 +1,6 @@
 from src.imaging import *
 from src.abstractfactory import ImageFactory
-from call4API.Image.GeeAPI import *
+from legacy_code.call4API.Image.GeeAPI import *
 
 class GeeImageFactory(ImageFactory):
     def concretegeneration(self, configuration):

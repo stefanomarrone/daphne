@@ -1,7 +1,7 @@
 import os
 import csv
 
-from call4API.scripts.json_utils import create_filepath
+from legacy_code.call4API.scripts.json_utils import create_filepath
 
 
 def generate_csv_filepath(folder_name, lat, lon, country_name, start_date, end_date):

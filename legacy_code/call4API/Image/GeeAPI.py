@@ -4,14 +4,12 @@ import ee
 import requests
 from dotenv import load_dotenv
 
-from call4API.catalog.coordinates_catalog import coordinates_catalog
-from call4API.catalog.image_catalog import image_catalog
-from call4API.scripts.json_utils import create_folder, generate_zip_filepath
-from call4API.scripts.utils import get_region_string
-from call4API.scripts.date_utils import date_to_date_hour, change_date_format
+from legacy_code.call4API.catalog.coordinates_catalog import coordinates_catalog
+from legacy_code.call4API.catalog.image_catalog import image_catalog
+from legacy_code.call4API.scripts.json_utils import generate_zip_filepath
+from legacy_code.call4API.scripts.utils import get_region_string
+from legacy_code.call4API.scripts.date_utils import change_date_format
 from abc import ABC, abstractmethod
-
-from mongodb import MongoWriter
 
 
 class GeeCatalogStrategy(ABC):

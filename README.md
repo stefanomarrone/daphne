@@ -145,6 +145,13 @@ This repository includes a minimal replication package designed to reproduce
 a representative data acquisition workflow using *DAPHNE*. See [README.md](replication/README.md). 
 
 ---
+
+## Acknowledgement
+
+This software has been supported by Italian Ministry of University and Research (MIUR), PNRR PRIN 2022 Project: A multidisciplinary approach to evaluate ecosystems resilience under climate
+change (*MatForPat*), Grant no. P2022WC2ZZ.
+
+---
 ## License
 The software is licensed according to the GNU General Public License v3.0 (see License file).
 
